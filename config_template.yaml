@@ -1,0 +1,13 @@
+displays:
+  1: 
+    window:
+      position_x: 0
+      position_y: 0
+      width: 1720
+      height: 1440
+  2: 
+    window:
+      position_x: 1720
+      position_y: 0
+      width: 1720
+      height: 1440
