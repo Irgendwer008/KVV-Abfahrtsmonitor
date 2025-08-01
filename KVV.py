@@ -1,7 +1,16 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import requests
 
-def get(url: str, requestor_ref: str, user_agent: str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", timestamp: datetime = datetime.now()) -> requests.Response:
+def get(url: str,
+        requestor_ref: str,
+        stop_point_ref: str,
+        number_of_results: int,
+        time_delta: timedelta = timedelta(minutes=3),
+        user_agent: str = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        timestamp: datetime = datetime.now()
+        ) -> requests.Response:
+
+    timestamp = timestamp.replace(microsecond=0)
 
     headers = {'Content-Type': 'text/xml; charset=utf-8', 
                'User-Agent': f'{user_agent}'}
@@ -15,20 +24,23 @@ def get(url: str, requestor_ref: str, user_agent: str = "Mozilla/5.0 (Windows NT
                 <StopEventRequest>
                     <Location>
                         <LocationRef>
-                            <StopPointRef>de:08212:3</StopPointRef>
+                            <StopPointRef>{stop_point_ref}</StopPointRef>
                         </LocationRef>
-                        <DepArrTime>2025-08-01T17:20:00</DepArrTime>
+                        <DepArrTime>{(timestamp + time_delta).replace(microsecond=0).isoformat()}</DepArrTime>
                     </Location>
                     <Params>
-                        <NumberOfResults>8</NumberOfResults>
+                        <NumberOfResults>{number_of_results}</NumberOfResults>
                         <StopEventType>departure</StopEventType>
                         <IncludeRealtimeData>true</IncludeRealtimeData>
                     </Params>
-                    </StopEventRequest>
-
+                </StopEventRequest>
             </RequestPayload>
         </ServiceRequest>
     </Trias>
     '''
+    
+    response = requests.post(url, headers=headers, data=xml_body.encode('utf-8'))
+    
+    print(response.content.decode('utf-8'))  # Debugging output to see the raw XML response
 
-    return requests.post(url, headers=headers, data=xml_body.encode('utf-8'))
+    return response
