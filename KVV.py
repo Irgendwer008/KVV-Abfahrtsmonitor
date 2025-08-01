@@ -15,6 +15,9 @@ def get(url: str,
     headers = {'Content-Type': 'text/xml; charset=utf-8', 
                'User-Agent': f'{user_agent}'}
 
+    # XLM body for the KVV Trias API request
+    # The XML structure is based on the KVV Trias API documentation
+    # https://www.kvv-efa.de/trias-api.html
     xml_body = f'''<?xml version="1.0" encoding="UTF-8"?>
     <Trias version="1.1" xmlns="http://www.vdv.de/trias" xmlns:siri="http://www.siri.org.uk/siri" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.vdv.de/trias file:///C:/development/HEAD/extras/TRIAS/TRIAS_1.1/Trias.xsd">
         <ServiceRequest>
