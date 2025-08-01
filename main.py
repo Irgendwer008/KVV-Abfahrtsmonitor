@@ -2,14 +2,20 @@ import ttkbootstrap as ttk
 import yaml
 
 from display import Display
+from KVV import get as get_kvv_data
 
 with open("config.yaml", "r") as file:
     config = yaml.safe_load(file)
 
-root = ttk.Window()
-root.withdraw()
+#root = ttk.Window()
+#root.withdraw()
 
-for display_config in config["displays"].values():
-    display = Display(display_config)
+#for display_config in config["displays"].values():
+#    display = Display(display_config)
 
-root.mainloop()
+#root.mainloop()
+
+response = get_kvv_data(config["credentials"]["url"], config["credentials"]["requestor_ref"])
+
+with open("response.xml", "w") as file:
+    file.write(response.content.decode('utf-8'))

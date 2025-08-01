@@ -11,3 +11,6 @@ displays:
       position_y: 0
       width: 1720
       height: 1440
+credentials:
+  url: https://projekte.kvv-efa.de/YOUR-URL/trias
+  requestor_ref:  YOUR-REQUESTOR_REF
