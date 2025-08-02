@@ -12,21 +12,19 @@ windows:
 # Here is one example list i found to quickly search for stop points and their refs: https://github.com/ZeroTwoWeeb/MMM-KVV-Trias/blob/main/stops.txt
 stations:
   Durlacher Tor / KIT-Campus Süd:
-    stop_points:
-      - stop_point_ref: de:08212:3
-        prefix: ""
-        suffix: ""
-      - stop_point_ref: de:08212:1001
-        prefix: ""
-        suffix: " (U)"
+    - stop_point_ref: de:08212:3
+      prefix: ""
+      suffix: ""
+    - stop_point_ref: de:08212:1001
+      prefix: ""
+      suffix: " (U)"
   Kronenplatz:
-    stop_points:
-      - stop_point_ref: de:08212:80
-        prefix: ""
-        suffix: ""
-      - stop_point_ref: de:08212:1002
-        prefix: ""
-        suffix: " (U)"
+    - stop_point_ref: de:08212:80
+      prefix: ""
+      suffix: ""
+    - stop_point_ref: de:08212:1002
+      prefix: ""
+      suffix: " (U)"
 credentials:
   url: https://projekte.kvv-efa.de/YOUR-URL/trias
   requestor_ref:  YOUR-REQUESTOR_REF
