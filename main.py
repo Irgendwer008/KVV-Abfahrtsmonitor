@@ -45,8 +45,8 @@ for window_config in windows_config:
 # Parse the XML
 #response = 'response.xml'
 #tree = ET.parse(response)
-response = get_kvv_data(credentials_config["url"], credentials_config["requestor_ref"], "de:08212:3", 8, timedelta(minutes=4)).content.decode('utf-8')
-tree = ET.ElementTree(ET.fromstring(response))
+#response = get_kvv_data(credentials_config["url"], credentials_config["requestor_ref"], "de:08212:3", 8, timedelta(minutes=4)).content.decode('utf-8')
+#tree = ET.ElementTree(ET.fromstring(response))
 
 # response = get_kvv_data(config["credentials"]["url"], config["credentials"]["requestor_ref"], "de:08212:3", 8, timedelta(minutes=0))
 # 
