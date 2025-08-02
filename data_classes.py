@@ -2,7 +2,27 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 import pandas as pd
 import xml.etree.ElementTree as ET
+import yaml
 from zoneinfo import ZoneInfo
+
+def get_stations_from_config() -> list["Station"]:
+    with open("config.yaml", "r") as file:
+        config = yaml.safe_load(file)
+
+    stations: list[Station] = []
+    
+    for station in config["stations"]:
+        stations.append(Station(
+            name=station["name"],
+            stop_point_refs=station["stop_point_refs"]
+        ))
+    
+    return stations
+    
+@dataclass
+class Station:
+    name: str
+    stop_point_refs: list[str]
 
 def get_hex_color(line_name: str) -> str:
     url = "https://raw.githubusercontent.com/Traewelling/line-colors/refs/heads/main/line-colors.csv"
