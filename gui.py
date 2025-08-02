@@ -47,9 +47,16 @@ class Window:
 
         self.departure_entries: list[Departure_Entry] = []
         
-    def refresh(self):
+    def refresh(self, departures: list[Departure] | None):
+        return
         for child in self.departuresframe.winfo_children():
             child.destroy()
+        
+        if departures.__len__ < 1 or departures is None:
+            return
+
+        for departure in departures:
+            self.departure_entries.append(departure)
 
 class Departure_Entry:
     def __init__(self, parent, departure: Departure):

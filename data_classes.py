@@ -21,6 +21,7 @@ class Departure:
     line_number: str
     destination: str
     platform: str
+    station: Station
     background_color: str
     text_color: str
     planned_time: datetime
@@ -76,7 +77,7 @@ def format_platform(platform: str) -> str:
     else:
         return platform
 
-def get_departures_from_xml(tree: ET.ElementTree) -> list["Departure"]:
+def get_departures_from_xml(stop_point_ref: str, tree: ET.ElementTree, all_stations: list[Station]) -> list["Departure"]:
     tree_root = tree.getroot()
 
     # Define namespaces
@@ -88,33 +89,40 @@ def get_departures_from_xml(tree: ET.ElementTree) -> list["Departure"]:
     departures: list[Departure] = []
 
     for event_result in tree_root.findall('.//tri:StopEventResult', ns):
-        event = event_result.find('tri:StopEvent', ns)
-        
-        # Get departure times
-        planned_time = datetime.fromisoformat(event.find('.//tri:ServiceDeparture/tri:TimetabledTime', ns).text)
-        try:
-            estimated_time = datetime.fromisoformat(event.find('.//tri:ServiceDeparture/tri:EstimatedTime', ns).text)
-        except Exception:
-            estimated_time = None
+        if event_result.find('.//tri:StopPointRef', ns).text.startswith(stop_point_ref):
+            event = event_result.find('tri:StopEvent', ns)
+            
+            # Get departure times
+            planned_time = datetime.fromisoformat(event.find('.//tri:ServiceDeparture/tri:TimetabledTime', ns).text)
+            try:
+                estimated_time = datetime.fromisoformat(event.find('.//tri:ServiceDeparture/tri:EstimatedTime', ns).text)
+            except Exception:
+                estimated_time = None
 
-        # Get line name and destination
-        line_number = event.find('.//tri:PublishedLineName/tri:Text', ns).text.split(" ")[-1]
-        destination = event.find('.//tri:DestinationText/tri:Text', ns).text
-        platform = format_platform(event.find('.//tri:PlannedBay/tri:Text', ns).text)
+            # Get line name and destination
+            line_number = event.find('.//tri:PublishedLineName/tri:Text', ns).text.split(" ")[-1]
+            destination = event.find('.//tri:DestinationText/tri:Text', ns).text
+            platform = format_platform(event.find('.//tri:PlannedBay/tri:Text', ns).text)
 
-        # Get colors from github table
-        background_color, text_color = get_hex_color(line_number)
+            # Get colors from github table
+            background_color, text_color = get_hex_color(line_number)
+            
+            for station in all_stations:
+                for stop_point in station.stop_points:
+                    if stop_point.stop_point_ref == stop_point_ref:
+                        departure_station = station
 
-        departure = Departure(
-            line_number=line_number,
-            platform=platform,
-            destination=destination,
-            background_color=background_color,
-            text_color=text_color,
-            planned_time=planned_time,
-            estimated_time=estimated_time
-        )
+            departure = Departure(
+                line_number=line_number,
+                destination=destination,
+                platform=platform,
+                station=departure_station,
+                background_color=background_color,
+                text_color=text_color,
+                planned_time=planned_time,
+                estimated_time=estimated_time
+            )
 
-        departures.append(departure)
+            departures.append(departure)
 
     return departures
