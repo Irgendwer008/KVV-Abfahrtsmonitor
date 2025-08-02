@@ -4,6 +4,28 @@ import pandas as pd
 import xml.etree.ElementTree as ET
 import yaml
 from zoneinfo import ZoneInfo
+    
+@dataclass
+class StopPoint:
+    stop_point_ref: str
+    prefix: str
+    suffix: str
+    
+@dataclass
+class Station:
+    name: str
+    stop_points: list[StopPoint]
+
+@dataclass
+class Departure:
+    line_number: str
+    destination: str
+    platform: str
+    background_color: str
+    text_color: str
+    planned_time: datetime
+    estimated_time: datetime | None = None
+    
 
 def get_stations_from_config() -> list["Station"]:
     with open("config.yaml", "r") as file:
@@ -12,17 +34,22 @@ def get_stations_from_config() -> list["Station"]:
     stations: list[Station] = []
     
     for station in config["stations"]:
+        
+        stop_points = []
+        
+        for stop_point in station["stop_points"]:
+            stop_points.append(StopPoint(
+                stop_point_ref=stop_point,
+                prefix=stop_point["prefix"],
+                suffix=stop_point["suffix"]
+            ))
+        
         stations.append(Station(
             name=station["name"],
-            stop_point_refs=station["stop_point_refs"]
+            stop_points=stop_points
         ))
     
     return stations
-    
-@dataclass
-class Station:
-    name: str
-    stop_point_refs: list[str]
 
 def get_hex_color(line_name: str) -> str:
     url = "https://raw.githubusercontent.com/Traewelling/line-colors/refs/heads/main/line-colors.csv"
@@ -48,16 +75,6 @@ def format_platform(platform: str) -> str:
         return " ".join(words[1:-1])
     else:
         return platform
-
-@dataclass
-class Departure:
-    line_number: str
-    destination: str
-    platform: str
-    background_color: str
-    text_color: str
-    planned_time: datetime
-    estimated_time: datetime | None = None
 
 def get_departures_from_xml(tree: ET.ElementTree) -> list["Departure"]:
     tree_root = tree.getroot()
