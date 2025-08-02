@@ -3,7 +3,7 @@ import tkinter as tk
 import tkinter.font as tkfont
 from datetime import datetime, timedelta
 
-from data_classes import Departure, Line
+from data_classes import Departure, get_time_from_now
 
 class Window:
     def __init__(self, windowconfig):
@@ -46,8 +46,16 @@ class Window:
 class Departure_Entry:
     def __init__(self, parent, departure: Departure):
 
-        seconds = time.total_seconds()
+        # Choose estimated time if one is available, otherwise use planned time
+        if departure.estimated_time is None:
+            time_shown = departure.planned_time
+        else:
+            time_shown = departure.estimated_time
+            
+        timedelta = get_time_from_now(time_shown)
+        seconds = timedelta.total_seconds()
 
+        # Format the time string based on the remaining time scale
         if seconds < 60:
             time_str = "Jetzt"
         elif seconds < 3600:
@@ -55,13 +63,14 @@ class Departure_Entry:
         else:
             time_str = f"{int(seconds // 3600)} h {int((seconds % 3600) // 60)} min"
 
+        # Create the departure entry frame and its content
         self.frame = tk.Frame(parent, bg="white")
         self.frame.pack(side="top", fill="x", padx=10, pady=(10, 0))
 
-        self.line_label = tk.Label(self.frame, text=departure.line.number, bg=departure.line.background_color, fg=departure.line.text_color)
+        self.line_label = tk.Label(self.frame, text=departure.line_number, bg=departure.background_color, fg=departure.text_color)
         self.line_label.pack(side="left", padx=5)
 
-        self.destination_label = tk.Label(self.frame, text=departure.line.destination, bg="white")
+        self.destination_label = tk.Label(self.frame, text=departure.destination, bg="white")
         self.destination_label.pack(side="left", padx=5)
 
         self.time_value = tk.Label(self.frame, text=time_str, bg="white")
