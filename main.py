@@ -7,10 +7,7 @@ import yaml
 
 from data_classes import Station
 from gui import Window, Departure_Entry
-from KVV import get as get_kvv_data
-
-
-
+from KVV import KVV
 
 # Import config 
 with open("config.yaml", "r") as file:
@@ -19,6 +16,8 @@ with open("config.yaml", "r") as file:
 windows_config = config["windows"]
 stations_config = config["stations"]
 credentials_config = config["credentials"]
+
+kvv = KVV(url=credentials_config["url"], requestor_ref=credentials_config["requestor_ref"])
 
 # Init GUI windows
 root = tk.Tk()
