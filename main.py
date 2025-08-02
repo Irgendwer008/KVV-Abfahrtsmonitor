@@ -9,6 +9,7 @@ from data_classes import Station, StopPoint, Departure, get_departures_from_xml
 from gui import Window
 from KVV import KVV
 
+#TODO: don't download line color csv file every update!
 #TODO: handle empty departures
 #TODO: handle http errors
 #TODO: popup window for error handling
@@ -65,7 +66,7 @@ for window in windows:
         if stop_point not in all_stop_points:
             all_stop_points.append(stop_point)
 
-def update_data():
+def update_departure_entries():
     # Get the current list of departures from all occuring stations
     departures: list[Departure] = []
     tree = ET.parse("response.xml")
@@ -86,7 +87,12 @@ def update_data():
         
         window.refresh(window_departures)
     
-update_data()
+    root.after(15000, update_departure_entries)
+    
+def update_line_color_data():
+    pass
+    
+update_departure_entries()
 
 # Parse XML from file
 #response = 'response.xml'
