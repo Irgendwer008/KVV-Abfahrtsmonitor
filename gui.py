@@ -1,6 +1,5 @@
 from PIL import Image, ImageTk
 import tkinter as tk
-import tkinter.font as tkfont
 from datetime import datetime, timedelta
 
 from data_classes import Station, Departure, get_time_from_now
@@ -17,7 +16,7 @@ class Window:
         window.bind("<Control-q>", quit)
         
         header_height = int(window_config["height"] / 15)
-        self.padding_size = int(header_height / 5)
+        self.padding_size = int(window_config["height"] / 75)
         self.font = ("liberation sans", int(window_config["height"] / 25))
 
         self.stationname = tk.StringVar(value=self.station.name)
@@ -48,8 +47,9 @@ class Window:
 
         self.departure_entries: list[Departure_Entry] = []
         
-    def refresh():
-        pass
+    def refresh(self):
+        for child in self.departuresframe.winfo_children():
+            child.destroy()
 
 class Departure_Entry:
     def __init__(self, parent, departure: Departure):
