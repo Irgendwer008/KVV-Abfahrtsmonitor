@@ -3,11 +3,13 @@ windows:
     position_y: 0
     width: 1920
     height: 1080
+    station: Kronenplatz
   - position_x: 1920
     position_y: 0
     width: 1920
     height: 1080
-# Here is one list i found to quickly search for stop points and their refs: https://github.com/ZeroTwoWeeb/MMM-KVV-Trias/blob/main/stops.txt
+    station: Durlacher Tor / KIT-Campus Süd
+# Here is one example list i found to quickly search for stop points and their refs: https://github.com/ZeroTwoWeeb/MMM-KVV-Trias/blob/main/stops.txt
 stations:
   - name: Durlacher Tor / KIT-Campus Süd
     stop_points:
@@ -15,6 +17,14 @@ stations:
         prefix: ""
         suffix: ""
       - stop_point_ref: de:08212:1001
+        prefix: ""
+        suffix: " (U)"
+  - name : Kronenplatz
+    stop_points:
+      - stop_point_ref: de:08212:80
+        prefix: ""
+        suffix: ""
+      - stop_point_ref: de:08212:1002
         prefix: ""
         suffix: " (U)"
 credentials:
