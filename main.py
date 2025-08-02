@@ -16,6 +16,9 @@ from KVV import KVV
 # optional
 #TODO: situation banner
 #TODO: QR-code to repo
+#TODO: no hardcoded string
+#TODO: make prefix and suffix optional in config.yaml
+#TODO: add color cusomization
 
 def error(*args):
     print("ERROR!\n\n", *args)

@@ -51,7 +51,7 @@ class Window:
         time()
         
         self.departuresframe = tk.Frame(window)
-        self.departuresframe.place(x=0, y=header_height, height=self.departure_entry_height * 8, width=self.width)
+        self.departuresframe.place(x=0, y=header_height, height=self.height-header_height, width=self.width)
 
         self.departure_entries: list[Departure_Entry] = []
         
@@ -63,9 +63,18 @@ class Window:
             return
         
         self.departure_entries.clear()
+        
+        self.departure_entries.append(Departure_Entry_Header(self))
 
         for departure in departures:
             self.departure_entries.append(Departure_Entry(self, departure, self.departure_entries.__len__()))
+        
+        if self.departure_entries.__len__() % 2:
+            background = "white"
+        else:
+            background = "#EEEEEE"
+        
+        self.departuresframe.configure(background=background)
 
 class Departure_Entry:
     def __init__(self, window: Window, departure: Departure, index: int):
@@ -118,4 +127,31 @@ class Departure_Entry:
         platform_label.place(anchor="center", relx=0.8, rely=0.5, relheight=0.8)
 
         time_value = tk.Label(frame, text=time_str, bg=background, font=window.departure_entry_font)
+        time_value.place(anchor="e", x=window.width-padding, rely=0.5, relheight=0.8)
+
+class Departure_Entry_Header(Departure_Entry):
+    def __init__(self, window: Window):
+        
+        header_font = (window.departure_entry_font[0], int(window.departure_entry_font[1] / 2))
+        
+        height = window.departure_entry_height / 2
+        padding = int(height / 8)
+        
+        background = "#EEEEEE"
+
+        # Create the departure entry frame and its content
+        frame = tk.Frame(window.departuresframe, bg=background, height=height)
+        frame.pack(side="top", fill="x", ipadx=padding*2)
+        frame.pack_propagate(0)
+
+        line_icon = tk.Label(frame, text="Linie", bg=background, font=header_font)
+        line_icon.place(anchor="center", x=2 * height, rely=0.5)
+
+        destination_label = tk.Label(frame, text="Richtung", bg=background, font=header_font)
+        destination_label.place(anchor="w", x=4*height, rely=0.5, relheight=0.8)
+
+        platform_label = tk.Label(frame, text="Gleis / Bstg.", bg=background, font=header_font)
+        platform_label.place(anchor="center", relx=0.8, rely=0.5, relheight=0.8)
+
+        time_value = tk.Label(frame, text="Ankunft", bg=background, font=header_font)
         time_value.place(anchor="e", x=window.width-padding, rely=0.5, relheight=0.8)
