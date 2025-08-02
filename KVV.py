@@ -43,7 +43,5 @@ def get(url: str,
     '''
     
     response = requests.post(url, headers=headers, data=xml_body.encode('utf-8'))
-    
-    print(response.content.decode('utf-8'))  # Debugging output to see the raw XML response
 
     return response

@@ -1,6 +1,9 @@
 from PIL import Image, ImageTk
 import tkinter as tk
-from datetime import datetime
+import tkinter.font as tkfont
+from datetime import datetime, timedelta
+
+from data_classes import Departure, Line
 
 class Window:
     def __init__(self, windowconfig):
@@ -22,10 +25,10 @@ class Window:
         self.stopiconlabel = tk.Label(self.headerframe, image=self.icons["stop"], bg="orange")
         self.stopiconlabel.pack(side="left", padx=10, pady=10)
         
-        self.stationlabel = tk.Label(self.headerframe, textvariable=self.stationname, font=("Helvetica", 60), anchor="w", justify="left", bg="orange")
+        self.stationlabel = tk.Label(self.headerframe, textvariable=self.stationname, font=("lucida", 40), anchor="w", justify="left", bg="orange")
         self.stationlabel.pack(side="left", padx=10, pady=10)
 
-        self.timelabel = tk.Label(self.headerframe, text="", font=("Helvetica", 60), anchor="w", justify="right", bg="orange")
+        self.timelabel = tk.Label(self.headerframe, text="", font=("lucida", 40), anchor="w", justify="right", bg="orange")
         self.timelabel.pack(side="right", padx=20, pady=20)
         def time():
             string = datetime.now().strftime('%H:%M:%S %p')
@@ -35,3 +38,31 @@ class Window:
         
         self.departuresframe = tk.Frame(self.window)
         self.departuresframe.pack(side="top", fill="both", anchor="n", expand=True)
+
+        self.departure_entries: list[Departure_Entry] = []
+        
+    #def refresh
+
+class Departure_Entry:
+    def __init__(self, parent, departure: Departure):
+
+        seconds = time.total_seconds()
+
+        if seconds < 60:
+            time_str = "Jetzt"
+        elif seconds < 3600:
+            time_str = f"{int(seconds // 60)} min"
+        else:
+            time_str = f"{int(seconds // 3600)} h {int((seconds % 3600) // 60)} min"
+
+        self.frame = tk.Frame(parent, bg="white")
+        self.frame.pack(side="top", fill="x", padx=10, pady=(10, 0))
+
+        self.line_label = tk.Label(self.frame, text=departure.line.number, bg=departure.line.background_color, fg=departure.line.text_color)
+        self.line_label.pack(side="left", padx=5)
+
+        self.destination_label = tk.Label(self.frame, text=departure.line.destination, bg="white")
+        self.destination_label.pack(side="left", padx=5)
+
+        self.time_value = tk.Label(self.frame, text=time_str, bg="white")
+        self.time_value.pack(side="left", padx=5)
