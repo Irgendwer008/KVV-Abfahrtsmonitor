@@ -2,25 +2,25 @@ from datetime import timedelta, datetime
 import pandas as pd
 import tkinter as tk
 import tkinter.font as tkfont
+import xml.etree.ElementTree as ET
 import yaml
 
+from data_classes import Station
 from gui import Window, Departure_Entry
 from KVV import get as get_kvv_data
 
 
 
 
-import xml.etree.ElementTree as ET
-
+# Import config 
 with open("config.yaml", "r") as file:
     config = yaml.safe_load(file)
+    
+windows_config = config["windows"]
+stations_config = config["stations"]
+credentials_config = config["credentials"]
 
-# Parse the XML
-#response = 'response.xml'
-#tree = ET.parse(response)
-response = get_kvv_data(config["credentials"]["url"], config["credentials"]["requestor_ref"], "de:08212:3", 8, timedelta(minutes=4)).content.decode('utf-8')
-tree = ET.ElementTree(ET.fromstring(response))
-
+# Init GUI windows
 root = tk.Tk()
 root.withdraw()
 
@@ -29,14 +29,24 @@ default_font.configure(family="liberation sans", size=60)
 
 windows: list[Window] = []
 
-for window in config["windows"]:
-    windows.append(Window(window))
-
-window = windows[0]
+for window_config in windows_config:
     
-    departure = Departure_Entry(window.departuresframe, )
+    stop_points = []
+    
+    for stop_point in stations_config[window_config["station"]]:
+        stop_points.append(stop_point)
+    
+    station = Station(window_config["station"], stop_points)
+    
+    windows.append(Window(window_config, station))
+    
+    
 
-    window.departure_entries.append(departure)
+# Parse the XML
+#response = 'response.xml'
+#tree = ET.parse(response)
+response = get_kvv_data(credentials_config["url"], credentials_config["requestor_ref"], "de:08212:3", 8, timedelta(minutes=4)).content.decode('utf-8')
+tree = ET.ElementTree(ET.fromstring(response))
 
 # response = get_kvv_data(config["credentials"]["url"], config["credentials"]["requestor_ref"], "de:08212:3", 8, timedelta(minutes=0))
 # 

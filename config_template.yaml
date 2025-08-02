@@ -11,7 +11,7 @@ windows:
     station: Durlacher Tor / KIT-Campus Süd
 # Here is one example list i found to quickly search for stop points and their refs: https://github.com/ZeroTwoWeeb/MMM-KVV-Trias/blob/main/stops.txt
 stations:
-  - name: Durlacher Tor / KIT-Campus Süd
+  Durlacher Tor / KIT-Campus Süd:
     stop_points:
       - stop_point_ref: de:08212:3
         prefix: ""
@@ -19,7 +19,7 @@ stations:
       - stop_point_ref: de:08212:1001
         prefix: ""
         suffix: " (U)"
-  - name : Kronenplatz
+  Kronenplatz:
     stop_points:
       - stop_point_ref: de:08212:80
         prefix: ""

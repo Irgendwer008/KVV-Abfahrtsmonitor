@@ -3,12 +3,12 @@ import tkinter as tk
 import tkinter.font as tkfont
 from datetime import datetime, timedelta
 
-from data_classes import Departure, get_time_from_now
+from data_classes import Station, Departure, get_time_from_now
 
 class Window:
-    def __init__(self, windowconfig):
+    def __init__(self, window_config: dict, station: Station):
         self.window = tk.Toplevel()
-        self.window.geometry(f"{windowconfig['width']}x{windowconfig['height']}+{windowconfig['position_x']}+{windowconfig['position_y']}")
+        self.window.geometry(f"{window_config['width']}x{window_config['height']}+{window_config['position_x']}+{window_config['position_y']}")
         #self.window.attributes("-fullscreen", True)
         self.window.wm_attributes('-type', 'splash')
         self.window.bind("<Control-q>", quit)
@@ -41,7 +41,8 @@ class Window:
 
         self.departure_entries: list[Departure_Entry] = []
         
-    #def refresh
+    def refresh():
+        pass
 
 class Departure_Entry:
     def __init__(self, parent, departure: Departure):
