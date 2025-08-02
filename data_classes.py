@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 import pandas as pd
+from typing import Literal
 from urllib.request import urlretrieve
 import xml.etree.ElementTree as ET
 import yaml
@@ -23,6 +24,8 @@ class Departure:
     destination: str
     platform: str
     station: Station
+    stop_point: StopPoint
+    mode: Literal["all", "unknown", "air", "bus", "trolleyBus", "tram", "coach", "rail", "intercityRail", "urbanRail", "metro", "water", "cable-way", "funicular", "taxi"]
     background_color: str
     text_color: str
     planned_time: datetime
@@ -76,7 +79,7 @@ def get_time_from_now(time: datetime) -> timedelta:
 def format_platform(platform: str) -> str:
     words = platform.split(" ")
     if len(words) > 1:
-        return " ".join(words[1:-1])
+        return " ".join(words[1:])
     else:
         return platform
 
@@ -105,21 +108,33 @@ def get_departures_from_xml(stop_point_ref: str, tree: ET.ElementTree, all_stati
             # Get line name and destination
             line_number = event.find('.//tri:PublishedLineName/tri:Text', ns).text.split(" ")[-1]
             destination = event.find('.//tri:DestinationText/tri:Text', ns).text
-            platform = format_platform(event.find('.//tri:PlannedBay/tri:Text', ns).text)
-
-            # Get colors from github table
-            background_color, text_color = get_hex_color(line_number)
             
+            # platform
+            try:
+                platform = format_platform(event.find('.//tri:PlannedBay/tri:Text', ns).text)
+            except AttributeError:
+                platform = None
+            
+            # get stop_point
             for station in all_stations:
                 for stop_point in station.stop_points:
                     if stop_point.stop_point_ref == stop_point_ref:
                         departure_station = station
+                        departure_stop_point = stop_point
+            
+            # mode
+            mode = event.find('.//tri:Mode/tri:PtMode', ns).text
+
+            # Get colors from github table
+            background_color, text_color = get_hex_color(line_number)
 
             departure = Departure(
                 line_number=line_number,
                 destination=destination,
                 platform=platform,
                 station=departure_station,
+                stop_point=departure_stop_point,
+                mode=mode,
                 background_color=background_color,
                 text_color=text_color,
                 planned_time=planned_time,
@@ -127,5 +142,8 @@ def get_departures_from_xml(stop_point_ref: str, tree: ET.ElementTree, all_stati
             )
 
             departures.append(departure)
+            
+    departures.sort(key=lambda x: (x.estimated_time if x.estimated_time is not None else x.planned_time))      
+        
 
     return departures
