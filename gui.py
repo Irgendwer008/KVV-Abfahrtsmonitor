@@ -6,7 +6,7 @@ from data_classes import Station, Departure, get_time_from_now
 from gui_line_icons import create_icon
 
 class Window:
-    def __init__(self, window_config: dict, station: Station):
+    def __init__(self, window_config: dict, station: Station, number_of_departure_entries: int = 8):
         
         self.station = station
         
@@ -19,8 +19,9 @@ class Window:
         self.height = window_config["height"]
         self.width = window_config["width"]
         
-        header_height = int(self.height / 15)
-        self.departure_entry_height = int(self.height / 10)
+        header_height = int(self.height / 12)
+        departure_frame_height = self.height - header_height
+        self.departure_entry_height = int(((departure_frame_height) / (number_of_departure_entries * 2 + 1)) * 2)
         self.padding_size = int(self.height / 75)
         self.header_font = ("liberation sans", int(self.height / 25))
         self.departure_entry_font = ("liberation sans", int(self.height / 25))
@@ -28,11 +29,11 @@ class Window:
         self.stationname = tk.StringVar(value=self.station.name)
         
         self.icons = {
-            "stop": ImageTk.PhotoImage(Image.open("images/stop_icon.png").resize((int(header_height), int(header_height)))),
+            "stop": ImageTk.PhotoImage(Image.open("images/stop_icon.png").resize((int(header_height - 2 * self.padding_size), int(header_height - 2 * self.padding_size)))),
         }
 
         self.headerframe = tk.Frame(window, background="orange")
-        self.headerframe.pack(side="top", fill="x", expand=False, anchor="n")
+        self.headerframe.place(anchor="nw", x=0, y=0, height=header_height, width=self.width)
 
         self.stopiconlabel = tk.Label(self.headerframe, image=self.icons["stop"], bg="orange")
         self.stopiconlabel.pack(side="left", padx=self.padding_size, pady=self.padding_size)
@@ -50,7 +51,7 @@ class Window:
         time()
         
         self.departuresframe = tk.Frame(window)
-        self.departuresframe.pack(side="top", fill="both", anchor="n", expand=True)
+        self.departuresframe.place(x=0, y=header_height, height=self.departure_entry_height * 8, width=self.width)
 
         self.departure_entries: list[Departure_Entry] = []
         
@@ -96,11 +97,16 @@ class Departure_Entry:
 
         # Create the departure entry frame and its content
         frame = tk.Frame(window.departuresframe, bg=background, height=height)
-        frame.pack(side="top", fill="x", ipadx=padding*2, ipady=padding)
+        frame.pack(side="top", fill="x", ipadx=padding*2)
         frame.pack_propagate(0)
 
-        icon_width = int(height * (departure.line_number.__len__()*0.4) + 2.5 * padding)
-        icon_height = height - 2* padding
+        # Scalar for general size appearance of icon size
+        icon_scale = 0.8
+
+        # Some black magic to make nice icon dimension while being adaptive to line number length
+        icon_width = int(icon_scale * (height * (departure.line_number.__len__()*0.4) + 2.5 * padding))
+        icon_height = int(icon_scale * (height - 2* padding))
+        # Create the icon (-> gui_line_icons.py)
         line_icon = create_icon(frame, departure.mode, icon_width, icon_height, int((icon_height) / 4), departure.line_number, background, departure.background_color, departure.text_color, window.departure_entry_font)
         line_icon.place(anchor="center", x=height, rely=0.5)
 

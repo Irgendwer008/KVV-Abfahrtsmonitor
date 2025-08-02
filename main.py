@@ -10,6 +10,8 @@ from gui import Window
 from KVV import KVV
 
 #TODO: handle empty departures
+#TODO: handle http errors
+#TODO: popup window for error handling
 
 # optional
 #TODO: situation banner
