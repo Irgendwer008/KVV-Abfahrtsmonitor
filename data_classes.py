@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 import pandas as pd
+from urllib.request import urlretrieve
 import xml.etree.ElementTree as ET
 import yaml
 from zoneinfo import ZoneInfo
@@ -54,6 +55,8 @@ def get_stations_from_config() -> list["Station"]:
 
 def get_hex_color(line_name: str) -> str:
     url = "https://raw.githubusercontent.com/Traewelling/line-colors/refs/heads/main/line-colors.csv"
+    
+    urlretrieve(url, "line-colors.csv")
 
     df = pd.read_csv(url)
     filtered_df = df[df['shortOperatorName'].str.contains('kvv', case=False, na=False)]
