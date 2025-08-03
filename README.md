@@ -26,6 +26,14 @@ The application uses a YAML configuration file to define window layouts, station
 
 Below is a breakdown of each section:
 
+## General
+
+General settings are:
+- "SEV-lines use normal line icon colors": \
+    whether lines starting with "SEV" should use the automatic line numbering as the line they are replacing (True) or if they should use the "default_icon_text" and "-background" configured in [Colors](#colors) (False)
+
+    Example: if True: line "SEV 10" uses the icon line color corresponding to line "10" instead of default icon colors
+
 ## Windows
 Defines the layout and properties of each display window. Each entry has to include
 

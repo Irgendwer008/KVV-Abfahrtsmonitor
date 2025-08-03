@@ -68,7 +68,7 @@ def download_line_color_list(filename: str):
     except HTTPError:
         logger.exception("Line color data could not be downloaded!y")
 
-def get_line_color(line_name: str, filename: str, fallback_colors: tuple[str, str]) -> str:
+def get_line_color(line_name: str, filename: str, fallback_colors: tuple[str, str], SEV_lines_use_normal_line_icon_colors: bool) -> str:
     if line_name == "InterCityExpress" or line_name == "InterCity":
         return ("#EC0016", "#FFFFFF")
     
@@ -76,10 +76,17 @@ def get_line_color(line_name: str, filename: str, fallback_colors: tuple[str, st
     filtered_df = df[df['shortOperatorName'].str.contains('kvv', case=False, na=False)]
     
     result = filtered_df[filtered_df["lineName"] == line_name]
+    
+    print(line_name, line_name[0:3], line_name[3:])
 
     try:
         if result.empty:
-            raise IndexError("Line name not found")
+            if SEV_lines_use_normal_line_icon_colors and line_name[0:3] == "SEV":
+                result = filtered_df[filtered_df["lineName"] == line_name[3:]]
+                if result.empty:
+                    raise IndexError("Line name not found")
+            else: 
+                raise IndexError("Line name not found")
         return result["backgroundColor"].array[0], result["textColor"].array[0]
     except IndexError:
         return fallback_colors
@@ -94,7 +101,7 @@ def format_platform(platform: str) -> str:
     else:
         return platform
 
-def get_departures_from_xml(stop_point_ref: str, tree: ET.ElementTree, all_stations: list[Station], fallback_line_icon_colors: tuple[str, str] = ("#006EFF", "#FFFFFF")) -> list["Departure"]:
+def get_departures_from_xml(stop_point_ref: str, tree: ET.ElementTree, all_stations: list[Station], fallback_line_icon_colors: tuple[str, str], SEV_lines_use_normal_line_icon_colors: bool) -> list["Departure"]:
     tree_root = tree.getroot()
 
     # Define namespaces
@@ -118,7 +125,6 @@ def get_departures_from_xml(stop_point_ref: str, tree: ET.ElementTree, all_stati
 
             # Get line name and destination
             published_line_name = event.find('.//tri:PublishedLineName/tri:Text', ns).text
-            print(published_line_name)
             # TODO: make not hardcoded
             if published_line_name.split(" ")[1] == "SEV":
                 line_number = "SEV" + published_line_name.split(" ")[-1]
@@ -149,7 +155,7 @@ def get_departures_from_xml(stop_point_ref: str, tree: ET.ElementTree, all_stati
             mode = event.find('.//tri:Mode/tri:PtMode', ns).text
 
             # Get colors from github table
-            background_color, text_color = get_line_color(line_number, "line-colors.csv", fallback_line_icon_colors)
+            background_color, text_color = get_line_color(line_number, "line-colors.csv", fallback_line_icon_colors, SEV_lines_use_normal_line_icon_colors)
 
             departure = Departure(
                 line_number=line_number,
