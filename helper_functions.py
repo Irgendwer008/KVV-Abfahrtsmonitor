@@ -67,8 +67,11 @@ def download_line_color_list(filename: str):
         urlretrieve(url, filename)
     except HTTPError:
         logger.exception("Line color data could not be downloaded!y")
-    
+
 def get_line_color(line_name: str, filename: str, fallback_colors: tuple[str, str] = ("#006EFF", "#FFFFFF")) -> str:
+    if line_name == "InterCityExpress" or line_name == "InterCity":
+        return ("#EC0016", "#FFFFFF")
+    
     df = pd.read_csv(filename)
     filtered_df = df[df['shortOperatorName'].str.contains('kvv', case=False, na=False)]
     

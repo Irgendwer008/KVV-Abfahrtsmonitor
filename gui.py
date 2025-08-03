@@ -81,8 +81,6 @@ class Window:
         
     def refresh(self, departures: list[Departure] | None):
         
-        print("Update " + self.stationname.get())
-        
         departures.sort(key=lambda x: (x.estimated_time if x.estimated_time is not None else x.planned_time))
         
         #TODO: handle no departures
