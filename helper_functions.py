@@ -76,8 +76,6 @@ def get_line_color(line_name: str, filename: str, fallback_colors: tuple[str, st
     filtered_df = df[df['shortOperatorName'].str.contains('kvv', case=False, na=False)]
     
     result = filtered_df[filtered_df["lineName"] == line_name]
-    
-    print(line_name, line_name[0:3], line_name[3:])
 
     try:
         if result.empty:
