@@ -49,5 +49,8 @@ class KVV:
         xml_body = self._get_formatted_xml_string(request_timestamp, stop_point_ref, time_delta, number_of_results)
         
         response = requests.post(self.url, headers=self.headers, data=xml_body).content.decode("utf-8")
+        
+        with open("response.xml", "w") as f:
+            f.write(response)
 
         return response

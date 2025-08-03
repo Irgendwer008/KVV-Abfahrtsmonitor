@@ -4,7 +4,7 @@ from abc import abstractmethod
 
 class Config:
     @abstractmethod
-    def read(file_list: list[str] = ["config.yaml", "config.yml"]):
+    def read(file_list: list[str] = ["config.yaml", "config.yml"]) -> dict:
         # Import config
         try:
             success = False
@@ -29,18 +29,24 @@ class Config:
         return config
     
     @abstractmethod
-    def _check_and_get_windows(config) -> str:
+    def _check_and_get_windows(config) -> list:
         # check if windows where configured correctly
         try:
             index = None
             windows_config: list = config["windows"]
-            for try_station in windows_config:
-                index = windows_config.index(try_station)
-                int(try_station["position_x"])
-                int(try_station["position_y"])
-                int(try_station["width"])
-                int(try_station["height"])
-                try_station["station"]
+            for try_window in windows_config:
+                index = windows_config.index(try_window)
+                # check if fields exist and are of correct type
+                int(try_window["position_x"])
+                int(try_window["position_y"])
+                int(try_window["width"])
+                int(try_window["height"])
+                expected_station = try_window["station"]
+                try:
+                    config["stations"][expected_station] # also check if the wanted station actually exists in the stations config
+                except KeyError:
+                    logger.critical(f'KeyError while reading windows configuration, mentioned station {expected_station} does not exist in the station config part! Make sure you haven\'t mistyped it ore the stations config! Quitting program.', exc_info=True)
+                    quit()
         except KeyError:
             if index is None:
                 logger.critical('KeyError while reading windows configuration, have you typed "windows" correctly? Quitting program.', exc_info=True)
@@ -54,7 +60,7 @@ class Config:
         return windows_config
     
     @abstractmethod
-    def _check_and_get_stations(config) -> str:
+    def _check_and_get_stations(config) -> dict:
         # check if stations where configured correctly
         try:
             try_station = None
@@ -79,7 +85,7 @@ class Config:
         return station_config
     
     @abstractmethod
-    def _check_and_get_credentials(config) -> str:
+    def _check_and_get_credentials(config) -> dict:
         # check if credentials section exists
         try:
             credentials_config: dict = config["credentials"]
@@ -107,7 +113,7 @@ class Config:
         return credentials_config
     
     @abstractmethod
-    def check(config: str):
+    def check(config: str) -> tuple[list, dict, dict]:
         windows_config = Config._check_and_get_windows(config)
         stations_config = Config._check_and_get_stations(config)
         credentials_config = Config._check_and_get_credentials(config)

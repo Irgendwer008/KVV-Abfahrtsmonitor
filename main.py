@@ -1,14 +1,18 @@
 from log import logger
 
-from datetime import timedelta, datetime
 import pandas as pd
 import tkinter as tk
 import tkinter.font as tkfont
 import xml.etree.ElementTree as ET
 
 from config import Config
-from data_classes import Station, StopPoint, Departure, get_departures_from_xml
+from data_classes import Station, StopPoint, Departure
 from gui import Window
+from helper_functions import create_stations, \
+                             get_all_used_stoppoints, \
+                             download_line_color_list, \
+                             get_departures_from_xml, \
+                             get_departures_for_window
 from KVV import KVV
 
 #TODO: don't download line color csv file every update!
@@ -34,66 +38,43 @@ kvv = KVV(url=credentials_config["url"], requestor_ref=credentials_config["reque
 
 # Init GUI windows
 root = tk.Tk()
-root.withdraw()
 
 default_font = tkfont.nametofont("TkDefaultFont")
 default_font.configure(family="liberation sans", size=60)
 
-def create_windows_from_config() -> None:
-
-    for window_config in windows_config:
-        
-        stop_points: list[StopPoint] = []
-        
-        for stop_point in stations_config[window_config["station"]]:
-            stop_points.append(StopPoint(stop_point["stop_point_ref"], stop_point["prefix"], stop_point["suffix"]))
-        
-        station = Station(window_config["station"], stop_points)
-        
-        all_stations.append(station)
-        windows.append(Window(window_config, station))
-
-all_stations: list[Station] = []
-windows: list[Window] = []
-create_windows_from_config()
+# Init all windows and stations from config
+stations: dict[Station] = create_stations(stations_config)
+windows: list[Window] = Window.create_windows(windows_config, stations)
+root.withdraw()
 
 # Gather a list of all needed stop points, so that if two windoes use the same station the station's stop points don't have to get requested twice from the API
-all_stop_points: list[StopPoint] = []
-for window in windows:
-    for stop_point in window.station.stop_points:
-        if stop_point not in all_stop_points:
-            all_stop_points.append(stop_point)
+all_stop_points: list[StopPoint] = get_all_used_stoppoints(windows)
 
 def update_departure_entries():
     # Get the current list of departures from all occuring stations
-    departures: list[Departure] = []
-    tree = ET.parse("response.xml")
+    all_departures: list[Departure] = []
+    #tree = ET.parse("response.xml")
     for stop_point in all_stop_points:
-        #response = kvv.get(stop_point.stop_point_ref, number_of_results=4)
+        response = kvv.get(stop_point.stop_point_ref, number_of_results=6)
         try:
-            #tree = ET.ElementTree(ET.fromstring(response))
-            departures.extend(get_departures_from_xml(stop_point.stop_point_ref, tree, all_stations))
+            tree = ET.ElementTree(ET.fromstring(response))
+            all_departures.extend(get_departures_from_xml(stop_point.stop_point_ref, tree, stations))
         except Exception as e:
-            logger.exception(mgs = "error in creating departures from xml tree", stack_info=True)
+            logger.exception("error in creating departures from xml tree", stack_info=True)
     
     # Gather a list of all departures for any one window and populate it
     for window in windows:
-        window_departures: list[Departure] = []
-        for departure in departures:
-            if departure.station == window.station:
-                window_departures.append(departure)
-        
+        window_departures = get_departures_for_window(window, all_departures)
         window.refresh(window_departures)
     
-    root.after(15000, update_departure_entries)
-    
-def update_line_color_data():
-    pass
-    
-update_departure_entries()
+    root.after(60000, update_departure_entries)
 
-# Parse XML from file
-#response = 'response.xml'
-#tree = ET.parse(response)
+def update_data():
+    download_line_color_list("line-colors.csv")
+    
+    root.after(86400000, update_data) # Update daily: 86400000ms
+    
+update_data()
+update_departure_entries()
 
 root.mainloop()
