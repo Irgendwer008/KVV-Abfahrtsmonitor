@@ -8,6 +8,7 @@ import xml.etree.ElementTree as ET
 from config import Config
 from data_classes import Station, StopPoint, Departure
 from gui import Window
+from gui_line_icons import LineIcons
 from helper_functions import create_stations, \
                              get_all_used_stoppoints, \
                              download_line_color_list, \
@@ -36,6 +37,9 @@ windows_config, stations_config, credentials_config = Config.check(config)
 # Init KVV API handler
 kvv = KVV(url=credentials_config["url"], requestor_ref=credentials_config["requestor_ref"])
 
+# Init Icon handler
+icons = LineIcons()
+
 # Init GUI windows
 root = tk.Tk()
 
@@ -44,7 +48,7 @@ default_font.configure(family="liberation sans", size=60)
 
 # Init all windows and stations from config
 stations: dict[Station] = create_stations(stations_config)
-windows: list[Window] = Window.create_windows(windows_config, stations)
+windows: list[Window] = Window.create_windows(windows_config, stations, icons)
 root.withdraw()
 
 # Gather a list of all needed stop points, so that if two windoes use the same station the station's stop points don't have to get requested twice from the API
@@ -55,7 +59,7 @@ def update_departure_entries():
     all_departures: list[Departure] = []
     #tree = ET.parse("response.xml")
     for stop_point in all_stop_points:
-        response = kvv.get(stop_point.stop_point_ref, number_of_results=6)
+        response = kvv.get(stop_point.stop_point_ref, number_of_results=10)
         try:
             tree = ET.ElementTree(ET.fromstring(response))
             all_departures.extend(get_departures_from_xml(stop_point.stop_point_ref, tree, stations))
@@ -67,12 +71,13 @@ def update_departure_entries():
         window_departures = get_departures_for_window(window, all_departures)
         window.refresh(window_departures)
     
-    root.after(60000, update_departure_entries)
+    root.after(30000, update_departure_entries)
 
 def update_data():
     download_line_color_list("line-colors.csv")
+    icons.icon_cache.clear()
     
-    root.after(86400000, update_data) # Update daily: 86400000ms
+    root.after(300000, update_data) # Update daily: 86400000ms
     
 update_data()
 update_departure_entries()

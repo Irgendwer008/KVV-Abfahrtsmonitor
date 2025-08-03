@@ -1,15 +1,16 @@
 from PIL import Image, ImageTk
 import tkinter as tk
 from datetime import datetime, timedelta
+import time as tm
 
 from abc import abstractmethod
 from data_classes import Station, Departure
-from gui_line_icons import create_icon
 from helper_functions import get_time_from_now
+from gui_line_icons import LineIcons
 
 class Window:
     @abstractmethod
-    def create_windows(windows_config: list, all_stations: dict[Station]) -> list["Window"]:
+    def create_windows(windows_config: list, all_stations: dict[Station], icon_handler: LineIcons) -> list["Window"]:
         windows: list[Window] = []
         
         
@@ -17,17 +18,18 @@ class Window:
             for station in all_stations:
                 if station.name == window_config["station"]:
                     break
-            windows.append(Window(window_config, station))
+            windows.append(Window(window_config, station, icon_handler))
         
         return windows
 
-    def __init__(self, window_config: dict, station: Station, number_of_departure_entries: int = 8):
-        
-        self.number_of_departure_entries=number_of_departure_entries
+    def __init__(self, window_config: dict, station: Station, icon_handler: LineIcons, number_of_departure_entries: int = 10):
         
         self.station = station
+        self.icon_handler = icon_handler
+        self.number_of_departure_entries=number_of_departure_entries
         
         window = tk.Toplevel()
+        self.window = window
         window.geometry(f"{window_config['width']}x{window_config['height']}+{window_config['position_x']}+{window_config['position_y']}")
         #window.attributes("-fullscreen", True)
         window.wm_attributes('-type', 'splash')
@@ -74,47 +76,68 @@ class Window:
         
         self.departure_entries.append(Departure_Entry_Header(self))
         
+        for i in range(number_of_departure_entries):
+            self.departure_entries.append(Departure_Entry(self))
+        
     def refresh(self, departures: list[Departure] | None):
         
-        departures.sort(key=lambda x: (x.estimated_time if x.estimated_time is not None else x.planned_time))    
+        print("Update " + self.stationname.get())
         
-        for child in self.departuresframe.winfo_children()[1:]:
-            child.destroy()
+        departures.sort(key=lambda x: (x.estimated_time if x.estimated_time is not None else x.planned_time))
         
+        #TODO: handle no departures
         if len(departures) < 1 or departures is None:
             return
         
-        self.departure_entries.clear()
-
-        for departure in departures:
-            self.departure_entries.append(Departure_Entry(self, departure, len(self.departure_entries)))
-            if len(self.departure_entries) >= self.number_of_departure_entries:
-                break
-            
-        
-        for departure_entry in self.departure_entries[1:]:
-            departure_entry.frame.pack(side="top", fill="x", ipadx=departure_entry.padding*2)
-            departure_entry.frame.pack_propagate(0)
-        
-        if len(self.departure_entries) % 2:
-            background = "white"
-        else:
-            background = "#EEEEEE"
-        
-        self.departuresframe.configure(background=background)
+        for i in range(len(departures)):
+            self.departure_entries[i + 1].update(departures[i], self.icon_handler, i)
+            if i + 1 >= self.number_of_departure_entries:
+                break           
+    
+        for departure_entry in self.departure_entries[i + 2:]:
+            departure_entry.clear(i)
 
 class Departure_Entry:
-    def __init__(self, window: Window, departure: Departure, index: int):
+    def __init__(self, window: Window):
+        self.window = window
+        self.height = window.departure_entry_height
+        self.padding = int(self.height / 8)
+        self.font = window.departure_entry_font
+        background = "white"
         
-        height = window.departure_entry_height
-        padding = int(height / 8)
+        # Create tkVars
+        self.destination_var = tk.StringVar()
+        self.platform_var = tk.StringVar()
+        self.time_text_var = tk.StringVar()
+
+        # Create the departure entry frame and its content
+        self.frame = tk.Frame(window.departuresframe, bg=background, height=self.height)
+        self.frame.pack(side="top", fill="x", ipadx=self.padding*2)
+        self.frame.pack_propagate(0)
+
+        self.destination_label = tk.Label(self.frame, textvariable=self.destination_var, bg=background, font=self.font)
+        self.destination_label.place(anchor="w", x=2*self.height, rely=0.5, relheight=0.8)
         
-        self.padding = padding
+        self.platform_label = tk.Label(self.frame, textvariable=self.platform_var, bg=background, font=self.font)
+        self.platform_label.place(anchor="center", relx=0.8, rely=0.5, relheight=0.8)
+
+        self.time_label = tk.Label(self.frame, textvariable=self.time_text_var, bg=background, font=self.font)
+        self.time_label.place(anchor="e", x=window.width-self.padding, rely=0.5, relheight=0.8)
+        
+        self.line_icon_label = tk.Label(self.frame, bg=background)
+        self.line_icon_label.place(anchor="center", x=self.height, rely=0.5)
+    
+    def update(self, departure: Departure, icon_handler: LineIcons, index: int):
         
         if index % 2:
             background = "#EEEEEE"
         else:
             background = "white"
+            
+        self.frame.configure(background=background)
+        self.destination_label.configure(background=background)
+        self.platform_label.configure(background=background)
+        self.time_label.configure(background=background)
 
         # Choose estimated time if one is available, otherwise use planned time
         if departure.estimated_time is None:
@@ -133,34 +156,42 @@ class Departure_Entry:
         else:
             time_str = f"{int(seconds // 3600)} h {int((seconds % 3600) // 60)} min"
 
-        # Create the departure entry frame and its content
-        self.frame = tk.Frame(window.departuresframe, bg=background, height=height)
-        self.frame.pack(side="top", fill="x", ipadx=padding*2)
-        self.frame.pack_propagate(0)
-
         # Scalar for general size appearance of icon size
         icon_scale = 0.8
 
+        # Preprocess line number
+        text = departure.line_number
+        if text == "InterCityExpress": text = "ICE"
+        if text == "InterCity": text = "IC"
         # Some black magic to make nice icon dimension while being adaptive to line number length
-        icon_width = int(icon_scale * (height * (departure.line_number.__len__()*0.4) + 2.5 * padding))
-        icon_height = int(icon_scale * (height - 2* padding))
+        icon_width = int(icon_scale * (self.height * (text.__len__()*0.4) + 2.5 * self.padding))
+        icon_height = int(icon_scale * (self.height - 2* self.padding))
+        
         # Create the icon (-> gui_line_icons.py)
-        line_icon = create_icon(self.frame, departure.mode, icon_width, icon_height, int((icon_height) / 4), departure.line_number, background, departure.background_color, departure.text_color, window.departure_entry_font)
-        line_icon.place(anchor="center", x=height, rely=0.5)
-
-        destination_label = tk.Label(self.frame, text=departure.destination, bg=background, font=window.departure_entry_font)
-        destination_label.place(anchor="w", x=2*height, rely=0.5, relheight=0.8)
+        self.line_icon_label.configure(image=icon_handler.get_icon(departure.mode, icon_width, icon_height, int((icon_height) / 4), text, background, departure.background_color, departure.text_color, self.font), background=background)
 
         # Platform formatting stuff
         prefix = departure.stop_point.prefix if departure.stop_point.prefix is not None else ""
         suffix = departure.stop_point.suffix if departure.stop_point.suffix is not None else ""
-        platform_text = (prefix + departure.platform + suffix) if departure.platform is not None else ""
+        platform_text = (prefix + " " + departure.platform + " " + suffix) if departure.platform is not None else (prefix + " N/A " + suffix)
         
-        platform_label = tk.Label(self.frame, text=platform_text, bg=background, font=window.departure_entry_font)
-        platform_label.place(anchor="center", relx=0.8, rely=0.5, relheight=0.8)
-
-        time_value = tk.Label(self.frame, text=time_str, bg=background, font=window.departure_entry_font)
-        time_value.place(anchor="e", x=window.width-padding, rely=0.5, relheight=0.8)
+        # Update tkVars
+        self.destination_var.set(departure.destination)
+        self.platform_var.set(platform_text)
+        self.time_text_var.set(time_str)
+        
+    def clear(self, index: int):
+        self.line_icon_label.destroy()
+        self.destination_var.set("")
+        self.platform_var.set("")
+        self.time_text_var.set("")
+        
+        if index % 2:
+            self.frame.configure(background="#EEEEEE")
+        else:
+            self.frame.configure(background="white")
+        
+        
 
 class Departure_Entry_Header(Departure_Entry):
     def __init__(self, window: Window):
@@ -186,5 +217,5 @@ class Departure_Entry_Header(Departure_Entry):
         platform_label = tk.Label(frame, text="Gleis / Bstg.", bg=background, font=header_font)
         platform_label.place(anchor="center", relx=0.8, rely=0.5, relheight=0.8)
 
-        time_value = tk.Label(frame, text="Ankunft", bg=background, font=header_font)
-        time_value.place(anchor="e", x=window.width-padding, rely=0.5, relheight=0.8)
+        time_label = tk.Label(frame, text="Ankunft", bg=background, font=header_font)
+        time_label.place(anchor="e", x=window.width-padding, rely=0.5, relheight=0.8)
