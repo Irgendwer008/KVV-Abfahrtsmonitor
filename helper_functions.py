@@ -68,7 +68,7 @@ def download_line_color_list(filename: str):
     except HTTPError:
         logger.exception("Line color data could not be downloaded!y")
 
-def get_line_color(line_name: str, filename: str, fallback_colors: tuple[str, str] = ("#006EFF", "#FFFFFF")) -> str:
+def get_line_color(line_name: str, filename: str, fallback_colors: tuple[str, str]) -> str:
     if line_name == "InterCityExpress" or line_name == "InterCity":
         return ("#EC0016", "#FFFFFF")
     

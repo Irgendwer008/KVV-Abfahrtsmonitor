@@ -1,9 +1,11 @@
 from log import logger
+import re
 import yaml
-from abc import abstractmethod
 
 class Config:
-    @abstractmethod
+    hex_color_regex = r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
+    
+    @staticmethod
     def read(file_list: list[str] = ["config.yaml", "config.yml"]) -> dict:
         # Import config
         try:
@@ -28,7 +30,7 @@ class Config:
         
         return config
     
-    @abstractmethod
+    @staticmethod
     def _check_and_get_windows(config) -> list:
         # check if windows where configured correctly
         try:
@@ -59,7 +61,7 @@ class Config:
         
         return windows_config
     
-    @abstractmethod
+    @staticmethod
     def _check_and_get_stations(config) -> dict:
         # check if stations where configured correctly
         try:
@@ -74,7 +76,7 @@ class Config:
                             raise ValueError
         except KeyError:
             if try_station is None:
-                logger.critical('KeyError while reading windows configuration, have you typed "station" correctly? Quitting program.', exc_info=True)
+                logger.critical('KeyError while reading station configuration, have you typed "station" correctly? Quitting program.', exc_info=True)
             else:
                 logger.critical(f'KeyError while reading station {try_station_key}\'s configuration, have you typed "stop_point_ref", "prefix" and "suffix" correctly? Quitting program.', exc_info=True)
             quit()
@@ -84,7 +86,29 @@ class Config:
         
         return station_config
     
-    @abstractmethod
+    @staticmethod
+    def _check_and_get_colors(config) -> dict:
+        # check if configured colors are valid
+        try:
+            color = None
+            color_config: dict = config["colors"]
+            for color in ["header_background", "header_text", "departure_entry_lighter", "departure_entry_darker", "departure_entry_text", "default_icon_background", "default_icon_text"]:
+                if not Config._is_color_valid(color_config[color]):
+                    raise ValueError
+            
+        except KeyError:
+            if color is None:
+                logger.critical('KeyError while reading color configuration, have you typed "colors" correctly? Quitting program.', exc_info=True)
+            else:
+                logger.critical(f'KeyError while reading color {color}\'s configuration, have you typed it correctly? Quitting program.', exc_info=True)
+            quit()
+        except ValueError:
+            logger.critical(f'ValueError while reading color {color}\'s configuration, it is not a valid hex code color! Quitting program.', exc_info=True)
+            quit()
+        
+        return color_config
+    
+    @staticmethod
     def _check_and_get_credentials(config) -> dict:
         # check if credentials section exists
         try:
@@ -112,13 +136,25 @@ class Config:
         
         return credentials_config
     
-    @abstractmethod
-    def check(config: str) -> tuple[list, dict, dict]:
+    @staticmethod
+    def _does_key_exist(dict: dict, key) -> None:
+        dict[key]
+    
+    @staticmethod
+    def _is_color_valid(color_string: str) -> bool:
+        regexp = re.compile(Config.hex_color_regex)
+        if regexp.search(color_string):
+            return True
+        return False
+    
+    @staticmethod
+    def check(config: str) -> tuple[list, dict, dict, dict]:
         windows_config = Config._check_and_get_windows(config)
         stations_config = Config._check_and_get_stations(config)
         credentials_config = Config._check_and_get_credentials(config)
+        colors_config = Config._check_and_get_colors(config)
         
-        return windows_config, stations_config, credentials_config
+        return windows_config, stations_config, credentials_config, colors_config
 
 if __name__ == "__main__":
     Config.check(Config.read())
