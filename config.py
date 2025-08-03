@@ -31,6 +31,27 @@ class Config:
         return config
     
     @staticmethod
+    def _check_and_get_general(config) -> dict:
+        # check if configured colors are valid
+        try:
+            color = None
+            general_config: dict = config["general"]
+            for setting in ["SEV-lines use normal line icon colors"]:
+                if str(general_config[setting]).lower() not in ['true', 'false']:
+                    raise ValueError
+        except KeyError:
+            if color is None:
+                logger.critical('KeyError while reading general configuration, have you typed "general" correctly? Quitting program.', exc_info=True)
+            else:
+                logger.critical(f'KeyError while reading general setting "{setting}", have you typed it correctly? Quitting program.', exc_info=True)
+            quit()
+        except ValueError:
+            logger.critical(f'ValueError while reading general setting "{setting}", it is not a boolean expression! Quitting program.', exc_info=True)
+            quit()
+        
+        return general_config
+    
+    @staticmethod
     def _check_and_get_windows(config) -> list:
         # check if windows where configured correctly
         try:
@@ -148,13 +169,14 @@ class Config:
         return False
     
     @staticmethod
-    def check(config: str) -> tuple[list, dict, dict, dict]:
+    def check(config: str) -> tuple[dict, list, dict, dict, dict]:
+        general_config = Config._check_and_get_general(config)
         windows_config = Config._check_and_get_windows(config)
         stations_config = Config._check_and_get_stations(config)
         credentials_config = Config._check_and_get_credentials(config)
         colors_config = Config._check_and_get_colors(config)
         
-        return windows_config, stations_config, credentials_config, colors_config
+        return general_config, windows_config, stations_config, credentials_config, colors_config
 
 if __name__ == "__main__":
     Config.check(Config.read())
