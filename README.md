@@ -2,6 +2,15 @@ This is quick and easy, but by design very flexible Solution for displaying depa
 
 Any ideas or help by you is warmely welcome! :)
 
+# Features
+- Multiple displays with each multiple stations, simultaneously and precisely placeable
+- Live train data directly from the TRIAS API
+- Designed to be highly flexible
+- Custom colors
+- autmoatic line icon color detection
+- simple configuration via YAML file
+- Rather optimized, e.g. by caching icon images, to be as fast as possible: Intended to run on Raspberry Pi 4 with dual displays
+
 # Requirements
 - Python 3 (not shure which exactly work, currently on 3.12.11)
 - Access to the KVV Trias API. Read more on that and how to get acces [here](https://www.kvv.de/fahrplan/fahrplaene/open-data.html)
