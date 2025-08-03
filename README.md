@@ -84,6 +84,20 @@ stations:
       suffix: "(U)"
 ```
 
+
+## Colors
+
+Here you can enter the respective hex codes used to draw the GUI:
+```yaml
+colors:
+  header_background: "#FFA500"
+  header_text: "#000000"
+  departure_entry_lighter: "#FFFFFF"
+  departure_entry_darker: "#EEEEEE"
+  departure_entry_text: "#000000"
+  default_icon_background: "#006EFF"
+  default_icon_text: "#FFFFFF"
+```
 ## Credentials
 
 Contains the credentials required to access the KVV Trias API.
