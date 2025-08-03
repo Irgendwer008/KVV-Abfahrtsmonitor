@@ -117,7 +117,19 @@ def get_departures_from_xml(stop_point_ref: str, tree: ET.ElementTree, all_stati
                 estimated_time = None
 
             # Get line name and destination
-            line_number = event.find('.//tri:PublishedLineName/tri:Text', ns).text.split(" ")[-1]
+            published_line_name = event.find('.//tri:PublishedLineName/tri:Text', ns).text
+            print(published_line_name)
+            # TODO: make not hardcoded
+            if published_line_name.split(" ")[1] == "SEV":
+                line_number = "SEV" + published_line_name.split(" ")[-1]
+            elif published_line_name.split(" ")[-1] == "InterCityExpress":
+                line_number = "ICE" + published_line_name.split(" ")[1:2]
+            elif published_line_name.split(" ")[-1] == "InterCity":
+                line_number = "IC" + published_line_name.split(" ")[1:2]
+            elif published_line_name.split(" ")[-1] == "Flixbus":
+                line_number = "FLX" + published_line_name.split(" ")[-1]
+            else: 
+                line_number = published_line_name.split(" ")[-1]
             destination = event.find('.//tri:DestinationText/tri:Text', ns).text
             
             # platform
