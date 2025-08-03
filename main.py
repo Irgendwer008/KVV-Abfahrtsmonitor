@@ -5,8 +5,8 @@ import pandas as pd
 import tkinter as tk
 import tkinter.font as tkfont
 import xml.etree.ElementTree as ET
-import yaml
 
+from config import Config
 from data_classes import Station, StopPoint, Departure, get_departures_from_xml
 from gui import Window
 from KVV import KVV
@@ -25,14 +25,11 @@ from KVV import KVV
 
 logger.info("starting KVV-Abfahrtsmonitore...")
 
-# Import config 
-with open("config.yaml", "r") as file:
-    config = yaml.safe_load(file)
-    
-windows_config = config["windows"]
-stations_config = config["stations"]
-credentials_config = config["credentials"]
+# Get config from config file and check it for integrity
+config = Config.read()
+windows_config, stations_config, credentials_config = Config.check(config)
 
+# Init KVV API handler
 kvv = KVV(url=credentials_config["url"], requestor_ref=credentials_config["requestor_ref"])
 
 # Init GUI windows
