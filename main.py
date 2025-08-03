@@ -1,3 +1,5 @@
+from log import logger
+
 from datetime import timedelta, datetime
 import pandas as pd
 import tkinter as tk
@@ -21,8 +23,7 @@ from KVV import KVV
 #TODO: make prefix and suffix optional in config.yaml
 #TODO: add color cusomization
 
-def error(*args):
-    print("ERROR!\n\n", *args)
+logger.info("starting KVV-Abfahrtsmonitore...")
 
 # Import config 
 with open("config.yaml", "r") as file:
@@ -76,7 +77,7 @@ def update_departure_entries():
             #tree = ET.ElementTree(ET.fromstring(response))
             departures.extend(get_departures_from_xml(stop_point.stop_point_ref, tree, all_stations))
         except Exception as e:
-            error(e) #error(e, f"\nresponse:\n{response}")
+            logger.exception(mgs = "error in creating departures from xml tree", stack_info=True)
     
     # Gather a list of all departures for any one window and populate it
     for window in windows:
