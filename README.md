@@ -20,7 +20,9 @@ This is quick and easy, but by design very flexible Solution for displaying depa
 - Run: `python`
 
 # Configuration
-The application uses a YAML configuration file to define window layouts, stations, and credentials. Below is a breakdown of each section:
+The application uses a YAML configuration file to define window layouts, stations, and credentials. A complete template configuration file can be found in the [config_template.yaml](https://github.com/Irgendwer008/OpenDepartureDisplay/blob/main/config_template.yaml).
+
+Below is a breakdown of each section:
 
 ## Windows
 Defines the layout and properties of each display window. Each entry has to include
