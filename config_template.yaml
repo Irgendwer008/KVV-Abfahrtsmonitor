@@ -34,6 +34,14 @@ stations:
       suffix: "(Hbf)"
     - stop_point_ref: de:08212:89
       suffix: "(N)"
+colors:
+  header_background: "#FFA500"
+  header_text: "#000000"
+  departure_entry_lighter: "#FFFFFF"
+  departure_entry_darker: "#EEEEEE"
+  departure_entry_text: "#000000"
+  default_icon_background: "#006EFF"
+  default_icon_text: "#FFFFFF"
 credentials:
   url: https://projekte.kvv-efa.de/YOUR-URL/trias
   requestor_ref:  YOUR-REQUESTOR_REF
