@@ -8,8 +8,10 @@ Any ideas or help by you is warmely welcome! :)
 - Designed to be highly flexible
 - Custom colors
 - autmoatic line icon color detection
+- different icon shapes for different transit types, currently designed to look like official KVV icons
 - simple configuration via YAML file
 - Rather optimized, e.g. by caching icon images, to be as fast as possible: Intended to run on Raspberry Pi 4 with dual displays
+- QR-Code with custom content (e.g. links), size and [colors](#colors)
 
 # Requirements
 - Python 3 (not shure which exactly works, currently on 3.12.11)
@@ -38,10 +40,16 @@ Below is a breakdown of each section:
 ## General
 
 General settings are:
+- "time_zone": \
+  set your respective timezone for correct calculation of time to departure (see [Wikipedia](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) or [IANA specification] (https://www.iana.org/time-zones) for a table of possibilities)
 - "SEV-lines use normal line icon colors": \
-    whether lines starting with "SEV" should use the automatic line numbering as the line they are replacing (True) or if they should use the "default_icon_text" and "-background" configured in [Colors](#colors) (False)
+  whether lines starting with "SEV" should use the automatic line numbering as the line they are replacing (True) or if they should use the "default_icon_text" and "-background" configured in [Colors](#colors) (False)
 
-    Example: if True: line "SEV 10" uses the icon line color corresponding to line "10" instead of default icon colors
+  Example: if True: line "SEV 10" uses the icon line color corresponding to line "10" instead of default icon colors.
+- "QR-Code-content": \
+  Set your custom QR-Code content, or leave emtpy to display no QR-code.
+- "QR-Code-height": \
+  Defines the height of the QR-Code relative to the header, must therefor be a value between (including) 0 and 1.
 
 ## Windows
 Defines the layout and properties of each display window. Each entry has to include
@@ -114,6 +122,8 @@ colors:
   departure_entry_text: "#000000"
   default_icon_background: "#006EFF"
   default_icon_text: "#FFFFFF"
+  qr_code_background: "#FFFFFF"
+  qr_code_foregreound: "#000000"
 ```
 ## Credentials
 

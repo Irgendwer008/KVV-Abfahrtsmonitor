@@ -1,6 +1,7 @@
 from log import logger
 import re
 import yaml
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 class Config:
     hex_color_regex = r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
@@ -25,7 +26,7 @@ class Config:
             logger.critical('FileNotFoundError while opening file "config.yaml", does it exist? Quitting program.')
             quit()
         except Exception:
-            logger.critical("Error while reading configuration, quitting program!", exc_info=True)
+            logger.critical("Error while opening configuration file, quitting program!", exc_info=True)
             quit()
         
         return config
@@ -34,11 +35,19 @@ class Config:
     def _check_and_get_general(config) -> dict:
         # check if configured colors are valid
         try:
-            color = None
             general_config: dict = config["general"]
+            
+            setting = "time_zone"
+            ZoneInfo(general_config[setting])
+            
+            color = None
             for setting in ["SEV-lines use normal line icon colors"]:
                 if str(general_config[setting]).lower() not in ['true', 'false']:
                     raise ValueError
+                
+            setting = "QR-Code-height"
+            if float(general_config[setting]) < 0 or float(general_config[setting] > 1):
+                raise ValueError
         except KeyError:
             if color is None:
                 logger.critical('KeyError while reading general configuration, have you typed "general" correctly? Quitting program.', exc_info=True)
@@ -46,9 +55,11 @@ class Config:
                 logger.critical(f'KeyError while reading general setting "{setting}", have you typed it correctly? Quitting program.', exc_info=True)
             quit()
         except ValueError:
-            logger.critical(f'ValueError while reading general setting "{setting}", it is not a boolean expression! Quitting program.', exc_info=True)
+            logger.critical(f'ValueError while reading general setting "{setting}", it is not a valid value for this setting! Quitting program.', exc_info=True)
             quit()
-        
+        except ZoneInfoNotFoundError:
+            logger.critical(f'ZoneInfoNotFoundError while reading general setting "{setting}", it is not a valid time sone identifier! See more in the README about this setting. Quitting program.', exc_info=True)
+            quit()        
         return general_config
     
     @staticmethod

@@ -65,8 +65,10 @@ def download_line_color_list(filename: str):
     url = "https://raw.githubusercontent.com/Traewelling/line-colors/refs/heads/main/line-colors.csv"
     try:
         urlretrieve(url, filename)
+        return True
     except HTTPError:
         logger.exception("Line color data could not be downloaded!y")
+        return False
 
 def get_line_color(line_name: str, filename: str, fallback_colors: tuple[str, str], SEV_lines_use_normal_line_icon_colors: bool) -> str:
     if line_name.startswith("ICE") or line_name.startswith("IC"):

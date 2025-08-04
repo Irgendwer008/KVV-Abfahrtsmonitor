@@ -71,10 +71,11 @@ class Window:
         
         time()
         
-        self.qr_code = QRCodeLabel(self.headerframe, header_height, general_config["QR-Code-content"], self.colors_config["qr_code_background"], self.colors_config["qr_code_foregreound"])
-        self.qr_code.configure(height=header_height, width=header_height)
-        self.qr_code.pack(side="right")
-        self.qr_code.pack_propagate(0)
+        if general_config["QR-Code-content"] not in [None, "None", "none"] and general_config["QR-Code-height"] > 0:
+            self.qr_code = QRCodeLabel(self.headerframe, int(header_height * general_config["QR-Code-height"]), general_config["QR-Code-content"], self.colors_config["qr_code_background"], self.colors_config["qr_code_foregreound"])
+            self.qr_code.configure(height=header_height, width=header_height, background=colors_config["header_background"])
+            self.qr_code.pack(side="right")
+            self.qr_code.pack_propagate(0)
         
         self.departuresframe = tk.Frame(window)
         self.departuresframe.place(x=0, y=header_height, height=self.height-header_height, width=self.width)

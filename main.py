@@ -1,6 +1,5 @@
 from log import logger
 
-import pandas as pd
 import tkinter as tk
 import tkinter.font as tkfont
 import xml.etree.ElementTree as ET
@@ -75,8 +74,9 @@ def update_departure_entries():
     root.after(30000, update_departure_entries)
 
 def update_data():
-    download_line_color_list("line-colors.csv")
-    icons.icon_cache.clear()
+    # Donwload latest line colors for use in line icons
+    if download_line_color_list("line-colors.csv"):
+        icons.icon_cache.clear() # (Only) clear old icons if new line colors could be downloaded.
     
     root.after(300000, update_data) # Update daily: 86400000ms
     
