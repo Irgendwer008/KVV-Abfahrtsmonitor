@@ -113,7 +113,7 @@ class Config:
         try:
             color = None
             color_config: dict = config["colors"]
-            for color in ["header_background", "header_text", "departure_entry_lighter", "departure_entry_darker", "departure_entry_text", "default_icon_background", "default_icon_text"]:
+            for color in ["header_background", "header_text", "departure_entry_lighter", "departure_entry_darker", "departure_entry_text", "default_icon_background", "default_icon_text", "qr_code_background", "qr_code_foregreound"]:
                 if not Config._is_color_valid(color_config[color]):
                     raise ValueError
             

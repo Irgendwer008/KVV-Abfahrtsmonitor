@@ -1,6 +1,7 @@
-from PIL import Image, ImageTk
-import tkinter as tk
 from datetime import datetime
+from PIL import Image, ImageTk
+import pyqrcode
+import tkinter as tk
 
 from data_classes import Station, Departure
 from helper_functions import get_time_from_now
@@ -8,7 +9,7 @@ from gui_line_icons import LineIcons
 
 class Window:
     @staticmethod
-    def create_windows(windows_config: list, all_stations: dict[Station], icon_handler: LineIcons, colors_config) -> list["Window"]:
+    def create_windows(windows_config: list, all_stations: dict[Station], icon_handler: LineIcons, colors_config: dict, general_config: dict) -> list["Window"]:
         windows: list[Window] = []
         
         
@@ -16,14 +17,15 @@ class Window:
             for station in all_stations:
                 if station.name == window_config["station"]:
                     break
-            windows.append(Window(window_config, station, icon_handler, colors_config))
+            windows.append(Window(window_config, station, icon_handler, colors_config, general_config))
         
         return windows
 
-    def __init__(self, window_config: dict, station: Station, icon_handler: LineIcons, colors_config: dict[str], number_of_departure_entries: int = 10):
+    def __init__(self, window_config: dict, station: Station, icon_handler: LineIcons, colors_config: dict[str], general_config: dict, number_of_departure_entries: int = 10):
         
         self.station = station
         self.icon_handler = icon_handler
+        self.general_config = general_config
         self.colors_config = colors_config
         self.number_of_departure_entries=number_of_departure_entries
         
@@ -61,12 +63,18 @@ class Window:
 
         self.timelabel = tk.Label(self.headerframe, text="", font=self.header_font, anchor="w", justify="right", fg=self.colors_config["header_text"], bg=self.colors_config["header_background"])
         self.timelabel.pack(side="right", padx=self.padding_size)
+        
         def time():
             string = datetime.now().strftime('%H:%M:%S')
             self.timelabel.config(text=string)
             self.timelabel.after(1000, time)
         
         time()
+        
+        self.qr_code = QRCodeLabel(self.headerframe, header_height, general_config["QR-Code-content"], self.colors_config["qr_code_background"], self.colors_config["qr_code_foregreound"])
+        self.qr_code.configure(height=header_height, width=header_height)
+        self.qr_code.pack(side="right")
+        self.qr_code.pack_propagate(0)
         
         self.departuresframe = tk.Frame(window)
         self.departuresframe.place(x=0, y=header_height, height=self.height-header_height, width=self.width)
@@ -89,7 +97,7 @@ class Window:
         for i in range(len(departures)):
             self.departure_entries[i + 1].update(departures[i], self.icon_handler, i)
             if i + 1 >= self.number_of_departure_entries:
-                break           
+                break
     
         for departure_entry in self.departure_entries[i + 2:]:
             departure_entry.clear(i)
@@ -143,7 +151,7 @@ class Departure_Entry:
         else:
             time_shown = departure.estimated_time
             
-        timedelta = get_time_from_now(time_shown)
+        timedelta = get_time_from_now(time_shown, self.window.general_config["time_zone"])
         seconds = timedelta.total_seconds()
 
         # Format the time string based on the remaining time scale
@@ -189,8 +197,6 @@ class Departure_Entry:
         else:
             self.frame.configure(background=self.window.colors_config["departure_entry_lighter"])
         
-        
-
 class Departure_Entry_Header(Departure_Entry):
     def __init__(self, window: Window):
         
@@ -218,3 +224,19 @@ class Departure_Entry_Header(Departure_Entry):
 
         time_label = tk.Label(frame, text="Ankunft", fg=text_color, bg=background, font=header_font)
         time_label.place(anchor="e", x=window.width-padding, rely=0.5, relheight=0.8)
+     
+# https://stackoverflow.com/questions/57128265/qrcode-displaying-in-tkinter-gui-python   
+class QRCodeLabel(tk.Label):
+    def __init__(self, parent, size: int, qr_data, background: str, foreground: str):
+        super().__init__(parent)
+        
+        qrcode = pyqrcode.create(qr_data)
+        tmp_png_file = "images/QRCode.png"        
+        qrcode.png(tmp_png_file, scale=1, quiet_zone=2, background=(int(background[1:3], 16), int(background[3:5], 16), int(background[5:7], 16), 255), module_color=(int(foreground[1:2], 16), int(foreground[3:4], 16), int(foreground[4:5], 16), 255))
+        
+        self.original = Image.open(tmp_png_file)
+        resized = self.original.resize((size, size))
+        
+        self.image = ImageTk.PhotoImage(resized)
+        
+        self.configure(image=self.image)

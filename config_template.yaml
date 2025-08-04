@@ -1,5 +1,7 @@
 general:
+  time_zone: Europe/Berlin
   SEV-lines use normal line icon colors: False
+  QR-Code-content: https://github.com/Irgendwer008/OpenDepartureDisplay
 windows:
   - position_x: 0
     position_y: 0
@@ -44,6 +46,8 @@ colors:
   departure_entry_text: "#000000"
   default_icon_background: "#006EFF"
   default_icon_text: "#FFFFFF"
+  qr_code_background: "#FFFFFF"
+  qr_code_foregreound: "#000000"
 credentials:
   url: https://projekte.kvv-efa.de/YOUR-URL/trias
   requestor_ref:  YOUR-REQUESTOR_REF
