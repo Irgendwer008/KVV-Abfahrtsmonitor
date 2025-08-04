@@ -49,7 +49,7 @@ default_font.configure(family="liberation sans", size=60)
 
 # Init all windows and stations from config
 stations: dict[Station] = create_stations(stations_config)
-windows: list[Window] = Window.create_windows(windows_config, stations, icons, colors_config)
+windows: list[Window] = Window.create_windows(windows_config, stations, icons, colors_config, general_config)
 root.withdraw()
 
 # Gather a list of all needed stop points, so that if two windoes use the same station the station's stop points don't have to get requested twice from the API

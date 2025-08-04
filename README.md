@@ -1,9 +1,9 @@
-This is quick and easy, but by design very flexible Solution for displaying departure data from the [KVV's TRIAS-API](https://www.kvv.de/fahrplan/fahrplaene/open-data.html) on ore especially several displays. It was developed for display at the students culture club ["Z10"](https://z10.info) in Karlsruhe.
+This is quick and easy, but by design very flexible Solution for displaying departure data from the [KVV's TRIAS-API](https://www.kvv.de/fahrplan/fahrplaene/open-data.html) on or especially several displays. It was developed for display at the students culture club ["Z10"](https://z10.info) in Karlsruhe.
 
 Any ideas or help by you is warmely welcome! :)
 
 # Requirements
-- Python 3 (not shure which exactly work, currently on 3.12.11)
+- Python 3 (not shure which exactly works, currently on 3.12.11)
 - Access to the KVV Trias API. Read more on that and how to get acces [here](https://www.kvv.de/fahrplan/fahrplaene/open-data.html)
 
 # Installation

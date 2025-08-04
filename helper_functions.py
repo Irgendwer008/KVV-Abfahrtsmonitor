@@ -69,8 +69,10 @@ def download_line_color_list(filename: str):
         logger.exception("Line color data could not be downloaded!y")
 
 def get_line_color(line_name: str, filename: str, fallback_colors: tuple[str, str], SEV_lines_use_normal_line_icon_colors: bool) -> str:
-    if line_name == "InterCityExpress" or line_name == "InterCity":
+    if line_name.startswith("ICE") or line_name.startswith("IC"):
         return ("#EC0016", "#FFFFFF")
+    if line_name.startswith("FLX"):
+        return ("#97d700", "#FFFFFF")
     
     df = pd.read_csv(filename)
     filtered_df = df[df['shortOperatorName'].str.contains('kvv', case=False, na=False)]
@@ -89,8 +91,8 @@ def get_line_color(line_name: str, filename: str, fallback_colors: tuple[str, st
     except IndexError:
         return fallback_colors
     
-def get_time_from_now(time: datetime) -> timedelta:
-    return time - datetime.now().replace(tzinfo=ZoneInfo("Europe/Berlin"))
+def get_time_from_now(time: datetime, time_zone: str) -> timedelta:
+    return time - datetime.now().replace(tzinfo=ZoneInfo(time_zone))
 
 def format_platform(platform: str) -> str:
     words = platform.split(" ")
@@ -125,13 +127,13 @@ def get_departures_from_xml(stop_point_ref: str, tree: ET.ElementTree, all_stati
             published_line_name = event.find('.//tri:PublishedLineName/tri:Text', ns).text
             # TODO: make not hardcoded
             if published_line_name.split(" ")[1] == "SEV":
-                line_number = "SEV" + published_line_name.split(" ")[-1]
+                line_number = "SEV" + "".join(published_line_name.split(" ")[-1])
             elif published_line_name.split(" ")[-1] == "InterCityExpress":
-                line_number = "ICE" + published_line_name.split(" ")[1:2]
+                line_number = "ICE" + "".join(published_line_name.split(" ")[1:2])
             elif published_line_name.split(" ")[-1] == "InterCity":
-                line_number = "IC" + published_line_name.split(" ")[1:2]
+                line_number = "IC" + "".join(published_line_name.split(" ")[1:2])
             elif published_line_name.split(" ")[-1] == "Flixbus":
-                line_number = "FLX" + published_line_name.split(" ")[-1]
+                line_number = "FLX" + "".join(published_line_name.split(" ")[-1])
             else: 
                 line_number = published_line_name.split(" ")[-1]
             destination = event.find('.//tri:DestinationText/tri:Text', ns).text
