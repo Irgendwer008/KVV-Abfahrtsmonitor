@@ -36,10 +36,10 @@ class Config:
     
     def _check_and_get_general(self):
         try:
-            self.general_config: dict = self.config["general"]
+            self.general: dict = self.config["general"]
             
             setting = "time_zone"
-            Helper.is_valid_ZoneInfo(self.general_config[setting])
+            Helper.is_valid_ZoneInfo(self.general[setting])
             
             setting = "SEV-lines use normal line icon colors"
             Helper.is_true_false_caseinsensitive(setting)
@@ -59,13 +59,13 @@ class Config:
             logger.critical(f'ZoneInfoNotFoundError while reading general setting "{setting}", it is not a valid time sone identifier! See more in the README about this setting. Quitting program.', exc_info=True)
             quit()
     
-    def _check_and_get_windows(config) -> list:
+    def _check_and_get_windows(self) -> list:
         # check if windows where configured correctly
         try:
             index = None
-            windows_config: list = config["windows"]
-            for try_window in windows_config:
-                index = windows_config.index(try_window)
+            self.windows: list = self.config["windows"]
+            for try_window in self.windows:
+                index = self.windows.index(try_window)
                 # check if fields exist and are of correct type
                 Helper.is_int(try_window["position_x"])
                 Helper.is_int(try_window["position_y"])
@@ -73,7 +73,7 @@ class Config:
                 Helper.is_int(try_window["height"])
                 expected_station = try_window["station"]
                 try:
-                    config["stations"][expected_station] # also check if the wanted station actually exists in the stations config
+                    self.config["stations"][expected_station] # also check if the wanted station actually exists in the stations config
                 except KeyError:
                     logger.critical(f'KeyError while reading windows configuration, mentioned station {expected_station} does not exist in the station config part! Make sure you haven\'t mistyped it ore the stations config! Quitting program.', exc_info=True)
                     quit()
@@ -86,16 +86,14 @@ class Config:
         except ValueError:
             logger.critical(f'ValueError while reading window #{index}\'s configuration, are "position_x", "position_y", "width" and "height" integers? Quitting program.', exc_info=True)
             quit()
-        
-        return windows_config
     
-    def _check_and_get_stations(config) -> dict:
+    def _check_and_get_stations(self) -> dict:
         # check if stations where configured correctly
         try:
             try_station = None
-            station_config: dict = config["stations"]
-            for try_station_key in station_config.keys():
-                try_station: list[dict] = station_config[try_station_key]
+            self.stations: dict = self.config["stations"]
+            for try_station_key in self.stations.keys():
+                try_station: list[dict] = self.stations[try_station_key]
                 for stop_point in try_station:
                     Helper.does_exist(stop_point, "stop_point_ref")
                     for try_optional_argument in stop_point.keys():
@@ -110,14 +108,12 @@ class Config:
         except ValueError:
             logger.critical(f'ValueError while reading station {try_station_key}\'s configuration, invalid property "{try_optional_argument}"! Quitting program.', exc_info=True)
             quit()
-        
-        return station_config
     
-    def _check_and_get_colors(config) -> dict:
+    def _check_and_get_colors(self) -> dict:
         # check if configured colors are valid
         try:
             color = None
-            color_config: dict = config["colors"]
+            self.colors: dict = self.config["colors"]
             for color in ["header_background",
                           "header_text",
                           "departure_entry_lighter",
@@ -127,7 +123,7 @@ class Config:
                           "default_icon_text",
                           "qr_code_background",
                           "qr_code_foregreound"]:
-                if not Helper.is_color_valid(color_config[color]):
+                if not Helper.is_color_valid(self.colors[color]):
                     raise ValueError
             
         except KeyError:
@@ -140,35 +136,31 @@ class Config:
         except ValueError:
             logger.critical(f'ValueError while reading color {color}\'s configuration, it is not a valid hex code color! Quitting program.', exc_info=True)
             quit()
-        
-        return color_config
     
-    def _check_and_get_credentials(config) -> dict:
+    def _check_and_get_credentials(self) -> dict:
         # check if credentials section exists
         try:
-            credentials_config: dict = config["credentials"]
+            self.credentials: dict = self.config["credentials"]
         except KeyError:
             logger.critical(f'KeyError while reading credentials config section, have you typed "credentials" correctly? Quitting program.', exc_info=True)
             quit()
         
         # check if url exists
         try:
-            Helper.does_exist(credentials_config, "url")
+            Helper.does_exist(self.credentials, "url")
         except KeyError:
             logger.critical(f'KeyError while reading credentials config section, have you typed "url" correctly? Quitting program.', exc_info=True)
             quit()
             
         # check if requestor_ref exists and is prosumeably correct
         try:
-            if credentials_config["requestor_ref"].__len__() != 12:
+            if self.credentials["requestor_ref"].__len__() != 12:
                 raise ValueError
         except KeyError:
             logger.critical(f'KeyError while reading credentials config section, have you typed "requestor_ref" correctly? Quitting program.', exc_info=True)
             quit()
         except ValueError:
             logger.warning(f'The requestor_ref given by the config has an unusual length, are you shure it is correct?')
-        
-        return credentials_config
 
 if __name__ == "__main__":
     print(Config().config)
