@@ -4,10 +4,7 @@ import yaml
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 class Config:
-    hex_color_regex = r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
-    
-    @staticmethod
-    def read(file_list: list[str] = ["config.yaml", "config.yml"]) -> dict:
+    def __init__(self, file_list: list[str] = ["config.yaml", "config.yml"]):
         # Import config
         try:
             success = False
@@ -29,9 +26,8 @@ class Config:
             logger.critical("Error while opening configuration file, quitting program!", exc_info=True)
             quit()
         
-        return config
+        self.config = config
     
-    @staticmethod
     def _check_and_get_general(config) -> dict:
         # check if configured colors are valid
         try:
@@ -62,7 +58,6 @@ class Config:
             quit()        
         return general_config
     
-    @staticmethod
     def _check_and_get_windows(config) -> list:
         # check if windows where configured correctly
         try:
@@ -93,7 +88,6 @@ class Config:
         
         return windows_config
     
-    @staticmethod
     def _check_and_get_stations(config) -> dict:
         # check if stations where configured correctly
         try:
@@ -118,7 +112,6 @@ class Config:
         
         return station_config
     
-    @staticmethod
     def _check_and_get_colors(config) -> dict:
         # check if configured colors are valid
         try:
@@ -140,7 +133,6 @@ class Config:
         
         return color_config
     
-    @staticmethod
     def _check_and_get_credentials(config) -> dict:
         # check if credentials section exists
         try:
@@ -168,8 +160,21 @@ class Config:
         
         return credentials_config
     
+    def _check(self):
+        self.general_config = Config._check_and_get_general(self.config)
+        self.windows_config = Config._check_and_get_windows(self.config)
+        self.stations_config = Config._check_and_get_stations(self.config)
+        self.credentials_config = Config._check_and_get_credentials(self.config)
+        self.colors_config = Config._check_and_get_colors(self.config)
+
+if __name__ == "__main__":
+    print(Config().config)
+
+class Helper:
+    hex_color_regex = r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
+    
     @staticmethod
-    def _does_key_exist(dict: dict, key) -> None:
+    def _does_exist(dict: dict, key) -> None:
         dict[key]
     
     @staticmethod
@@ -178,16 +183,12 @@ class Config:
         if regexp.search(color_string):
             return True
         return False
-    
-    @staticmethod
-    def check(config: str) -> tuple[dict, list, dict, dict, dict]:
-        general_config = Config._check_and_get_general(config)
-        windows_config = Config._check_and_get_windows(config)
-        stations_config = Config._check_and_get_stations(config)
-        credentials_config = Config._check_and_get_credentials(config)
-        colors_config = Config._check_and_get_colors(config)
         
-        return general_config, windows_config, stations_config, credentials_config, colors_config
-
-if __name__ == "__main__":
-    Config.check(Config.read())
+    @staticmethod
+    def _is_in_range(x: float, range: tuple[float, float] | tuple[None, float] | tuple[float, None]) -> bool:
+        if range[0] is None:
+            return x <= range[1]
+        elif range[1] is None:
+            return x >= range[0]
+        else:
+            return x <= range[1] and x >= range[0]
