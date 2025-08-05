@@ -25,38 +25,37 @@ class Config:
         except Exception:
             logger.critical("Error while opening configuration file, quitting program!", exc_info=True)
             quit()
-        
+            
         self.config = config
+        
+        self._check_and_get_general()
+        self._check_and_get_windows()
+        self._check_and_get_stations()
+        self._check_and_get_credentials()
+        self._check_and_get_colors()
     
-    def _check_and_get_general(config) -> dict:
-        # check if configured colors are valid
+    def _check_and_get_general(self):
         try:
-            general_config: dict = config["general"]
+            self.general_config: dict = self.config["general"]
             
             setting = "time_zone"
-            ZoneInfo(general_config[setting])
+            Helper.is_valid_ZoneInfo(self.general_config[setting])
             
-            color = None
-            for setting in ["SEV-lines use normal line icon colors"]:
-                if str(general_config[setting]).lower() not in ['true', 'false']:
-                    raise ValueError
-                
+            setting = "SEV-lines use normal line icon colors"
+            Helper.is_true_false_caseinsensitive(setting)
+            
             setting = "QR-Code-height"
-            if float(general_config[setting]) < 0 or float(general_config[setting] > 1):
+            if not Helper.is_in_range(0, 1):
                 raise ValueError
         except KeyError:
-            if color is None:
-                logger.critical('KeyError while reading general configuration, have you typed "general" correctly? Quitting program.', exc_info=True)
-            else:
-                logger.critical(f'KeyError while reading general setting "{setting}", have you typed it correctly? Quitting program.', exc_info=True)
+            logger.critical(f'KeyError while reading general setting "{setting}", have you typed it correctly? Quitting program.', exc_info=True)
             quit()
         except ValueError:
             logger.critical(f'ValueError while reading general setting "{setting}", it is not a valid value for this setting! Quitting program.', exc_info=True)
             quit()
         except ZoneInfoNotFoundError:
             logger.critical(f'ZoneInfoNotFoundError while reading general setting "{setting}", it is not a valid time sone identifier! See more in the README about this setting. Quitting program.', exc_info=True)
-            quit()        
-        return general_config
+            quit()
     
     def _check_and_get_windows(config) -> list:
         # check if windows where configured correctly
@@ -159,13 +158,6 @@ class Config:
             logger.warning(f'The requestor_ref given by the config has an unusual length, are you shure it is correct?')
         
         return credentials_config
-    
-    def _check(self):
-        self.general_config = Config._check_and_get_general(self.config)
-        self.windows_config = Config._check_and_get_windows(self.config)
-        self.stations_config = Config._check_and_get_stations(self.config)
-        self.credentials_config = Config._check_and_get_credentials(self.config)
-        self.colors_config = Config._check_and_get_colors(self.config)
 
 if __name__ == "__main__":
     print(Config().config)
@@ -174,21 +166,30 @@ class Helper:
     hex_color_regex = r'^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$'
     
     @staticmethod
-    def _does_exist(dict: dict, key) -> None:
+    def does_exist(dict: dict, key) -> None:
         dict[key]
     
     @staticmethod
-    def _is_color_valid(color_string: str) -> bool:
-        regexp = re.compile(Config.hex_color_regex)
+    def is_color_valid(color_string: str) -> bool:
+        regexp = re.compile(Helper.hex_color_regex)
         if regexp.search(color_string):
             return True
         return False
         
     @staticmethod
-    def _is_in_range(x: float, range: tuple[float, float] | tuple[None, float] | tuple[float, None]) -> bool:
+    def is_in_range(x: float, range: tuple[float, float] | tuple[None, float] | tuple[float, None]) -> bool:
         if range[0] is None:
             return x <= range[1]
         elif range[1] is None:
             return x >= range[0]
         else:
-            return x <= range[1] and x >= range[0]
+            return x <= max(range) and x >= min(range)
+    
+    @staticmethod
+    def is_valid_ZoneInfo(string: str) -> bool:
+        return ZoneInfo(string)
+    
+    @staticmethod
+    def is_true_false_caseinsensitive(string: str, valid_values: list[str] = ['true', 'false']) -> None:
+        if str(string).lower() not in valid_values:
+            raise ValueError
