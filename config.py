@@ -48,6 +48,7 @@ class Config:
             Helper.is_float(setting)
             if not Helper.is_in_range(setting, (0, 1)):
                 raise ValueError
+            
         except KeyError:
             logger.critical(f'KeyError while reading general setting "{setting}", have you typed it correctly? Quitting program.', exc_info=True)
             quit()
@@ -66,10 +67,10 @@ class Config:
             for try_window in windows_config:
                 index = windows_config.index(try_window)
                 # check if fields exist and are of correct type
-                int(try_window["position_x"])
-                int(try_window["position_y"])
-                int(try_window["width"])
-                int(try_window["height"])
+                Helper.is_int(try_window["position_x"])
+                Helper.is_int(try_window["position_y"])
+                Helper.is_int(try_window["width"])
+                Helper.is_int(try_window["height"])
                 expected_station = try_window["station"]
                 try:
                     config["stations"][expected_station] # also check if the wanted station actually exists in the stations config
@@ -94,9 +95,9 @@ class Config:
             try_station = None
             station_config: dict = config["stations"]
             for try_station_key in station_config.keys():
-                try_station = station_config[try_station_key]
+                try_station: list[dict] = station_config[try_station_key]
                 for stop_point in try_station:
-                    stop_point["stop_point_ref"]
+                    Helper.does_exist(stop_point, "stop_point_ref")
                     for try_optional_argument in stop_point.keys():
                         if try_optional_argument not in ["stop_point_ref", "prefix", "suffix"]:
                             raise ValueError
@@ -117,8 +118,16 @@ class Config:
         try:
             color = None
             color_config: dict = config["colors"]
-            for color in ["header_background", "header_text", "departure_entry_lighter", "departure_entry_darker", "departure_entry_text", "default_icon_background", "default_icon_text", "qr_code_background", "qr_code_foregreound"]:
-                if not Config._is_color_valid(color_config[color]):
+            for color in ["header_background",
+                          "header_text",
+                          "departure_entry_lighter",
+                          "departure_entry_darker",
+                          "departure_entry_text",
+                          "default_icon_background",
+                          "default_icon_text",
+                          "qr_code_background",
+                          "qr_code_foregreound"]:
+                if not Helper.is_color_valid(color_config[color]):
                     raise ValueError
             
         except KeyError:
@@ -126,6 +135,7 @@ class Config:
                 logger.critical('KeyError while reading color configuration, have you typed "colors" correctly? Quitting program.', exc_info=True)
             else:
                 logger.critical(f'KeyError while reading color {color}\'s configuration, have you typed it correctly? Quitting program.', exc_info=True)
+            
             quit()
         except ValueError:
             logger.critical(f'ValueError while reading color {color}\'s configuration, it is not a valid hex code color! Quitting program.', exc_info=True)
@@ -143,7 +153,7 @@ class Config:
         
         # check if url exists
         try:
-            credentials_config["url"]
+            Helper.does_exist(credentials_config, "url")
         except KeyError:
             logger.critical(f'KeyError while reading credentials config section, have you typed "url" correctly? Quitting program.', exc_info=True)
             quit()
