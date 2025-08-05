@@ -45,7 +45,8 @@ class Config:
             Helper.is_true_false_caseinsensitive(setting)
             
             setting = "QR-Code-height"
-            if not Helper.is_in_range(0, 1):
+            Helper.is_float(setting)
+            if not Helper.is_in_range(setting, (0, 1)):
                 raise ValueError
         except KeyError:
             logger.critical(f'KeyError while reading general setting "{setting}", have you typed it correctly? Quitting program.', exc_info=True)
@@ -168,6 +169,18 @@ class Helper:
     @staticmethod
     def does_exist(dict: dict, key) -> None:
         dict[key]
+        
+    @staticmethod
+    def is_int(string: str) -> None:
+        int(string)
+        
+    @staticmethod
+    def is_float(string: str) -> None:
+        float(string)
+    
+    @staticmethod
+    def is_valid_ZoneInfo(string: str) -> bool:
+        return ZoneInfo(string)
     
     @staticmethod
     def is_color_valid(color_string: str) -> bool:
@@ -184,10 +197,6 @@ class Helper:
             return x >= range[0]
         else:
             return x <= max(range) and x >= min(range)
-    
-    @staticmethod
-    def is_valid_ZoneInfo(string: str) -> bool:
-        return ZoneInfo(string)
     
     @staticmethod
     def is_true_false_caseinsensitive(string: str, valid_values: list[str] = ['true', 'false']) -> None:
