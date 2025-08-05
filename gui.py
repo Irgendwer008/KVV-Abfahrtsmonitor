@@ -3,30 +3,30 @@ from PIL import Image, ImageTk
 import pyqrcode
 import tkinter as tk
 
+from config import Config
 from data_classes import Station, Departure
 from helper_functions import get_time_from_now
 from gui_line_icons import LineIcons
 
 class Window:
     @staticmethod
-    def create_windows(windows_config: list, all_stations: dict[Station], icon_handler: LineIcons, colors_config: dict, general_config: dict) -> list["Window"]:
+    def create_windows(config: Config, all_stations: dict[Station], icon_handler: LineIcons) -> list["Window"]:
         windows: list[Window] = []
         
         
-        for window_config in windows_config:
+        for window_config in config.windows:
             for station in all_stations:
                 if station.name == window_config["station"]:
                     break
-            windows.append(Window(window_config, station, icon_handler, colors_config, general_config))
+            windows.append(Window(window_config, station, icon_handler, config))
         
         return windows
 
-    def __init__(self, window_config: dict, station: Station, icon_handler: LineIcons, colors_config: dict[str], general_config: dict, number_of_departure_entries: int = 10):
+    def __init__(self, window_config: dict, station: Station, icon_handler: LineIcons, config: Config, number_of_departure_entries: int = 10):
         
         self.station = station
         self.icon_handler = icon_handler
-        self.general_config = general_config
-        self.colors_config = colors_config
+        self.config = config
         self.number_of_departure_entries=number_of_departure_entries
         
         window = tk.Toplevel()
@@ -52,16 +52,16 @@ class Window:
             "stop": ImageTk.PhotoImage(Image.open("images/stop_icon.png").resize((int(header_height - 2 * self.padding_size), int(header_height - 2 * self.padding_size)))),
         }
 
-        self.headerframe = tk.Frame(window, background=self.colors_config["header_background"])
+        self.headerframe = tk.Frame(window, background=self.config.colors["header_background"])
         self.headerframe.place(anchor="nw", x=0, y=0, height=header_height, width=self.width)
 
-        self.stopiconlabel = tk.Label(self.headerframe, image=self.icons["stop"], bg=self.colors_config["header_background"])
+        self.stopiconlabel = tk.Label(self.headerframe, image=self.icons["stop"], bg=self.config.colors["header_background"])
         self.stopiconlabel.pack(side="left", padx=self.padding_size, pady=self.padding_size)
         
-        self.stationlabel = tk.Label(self.headerframe, textvariable=self.stationname, font=self.header_font, anchor="w", justify="left", fg=self.colors_config["header_text"], bg=self.colors_config["header_background"])
+        self.stationlabel = tk.Label(self.headerframe, textvariable=self.stationname, font=self.header_font, anchor="w", justify="left", fg=self.config.colors["header_text"], bg=self.config.colors["header_background"])
         self.stationlabel.pack(side="left", padx=self.padding_size)
 
-        self.timelabel = tk.Label(self.headerframe, text="", font=self.header_font, anchor="w", justify="right", fg=self.colors_config["header_text"], bg=self.colors_config["header_background"])
+        self.timelabel = tk.Label(self.headerframe, text="", font=self.header_font, anchor="w", justify="right", fg=self.config.colors["header_text"], bg=self.config.colors["header_background"])
         self.timelabel.pack(side="right", padx=self.padding_size)
         
         def time():
@@ -71,9 +71,9 @@ class Window:
         
         time()
         
-        if general_config["QR-Code-content"] not in [None, "None", "none"] and general_config["QR-Code-height"] > 0:
-            self.qr_code = QRCodeLabel(self.headerframe, int(header_height * general_config["QR-Code-height"]), general_config["QR-Code-content"], self.colors_config["qr_code_background"], self.colors_config["qr_code_foregreound"])
-            self.qr_code.configure(height=header_height, width=header_height, background=colors_config["header_background"])
+        if self.config.general["QR-Code-content"] not in [None, "None", "none"] and self.config.general["QR-Code-height"] > 0:
+            self.qr_code = QRCodeLabel(self.headerframe, int(header_height * self.config.general["QR-Code-height"]), self.config.general["QR-Code-content"], self.config.colors["qr_code_background"], self.config.colors["qr_code_foregreound"])
+            self.qr_code.configure(height=header_height, width=header_height, background=self.config.colors["header_background"])
             self.qr_code.pack(side="right")
             self.qr_code.pack_propagate(0)
         
@@ -109,8 +109,8 @@ class Departure_Entry:
         self.height = window.departure_entry_height
         self.padding = int(self.height / 8)
         self.font = window.departure_entry_font
-        background = self.window.colors_config["departure_entry_lighter"]
-        text_color = self.window.colors_config["departure_entry_text"]
+        background = self.window.config.colors["departure_entry_lighter"]
+        text_color = self.window.config.colors["departure_entry_text"]
         
         # Create tkVars
         self.destination_var = tk.StringVar()
@@ -137,9 +137,9 @@ class Departure_Entry:
     def update(self, departure: Departure, icon_handler: LineIcons, index: int):
         
         if index % 2:
-            background = self.window.colors_config["departure_entry_darker"]
+            background = self.window.config.colors["departure_entry_darker"]
         else:
-            background = self.window.colors_config["departure_entry_lighter"]
+            background = self.window.config.colors["departure_entry_lighter"]
             
         self.frame.configure(background=background)
         self.destination_label.configure(background=background)
@@ -152,7 +152,7 @@ class Departure_Entry:
         else:
             time_shown = departure.estimated_time
             
-        timedelta = get_time_from_now(time_shown, self.window.general_config["time_zone"])
+        timedelta = get_time_from_now(time_shown, self.window.config.general["time_zone"])
         seconds = timedelta.total_seconds()
 
         # Format the time string based on the remaining time scale
@@ -194,9 +194,9 @@ class Departure_Entry:
         self.time_text_var.set("")
         
         if index % 2:
-            self.frame.configure(background=self.window.colors_config["departure_entry_darker"])
+            self.frame.configure(background=self.window.config.colors["departure_entry_darker"])
         else:
-            self.frame.configure(background=self.window.colors_config["departure_entry_lighter"])
+            self.frame.configure(background=self.window.config.colors["departure_entry_lighter"])
         
 class Departure_Entry_Header(Departure_Entry):
     def __init__(self, window: Window):
@@ -206,8 +206,8 @@ class Departure_Entry_Header(Departure_Entry):
         height = window.departure_entry_height / 2
         padding = int(height / 8)
         
-        background = window.colors_config["departure_entry_darker"]
-        text_color = window.colors_config["departure_entry_text"]
+        background = window.config.colors["departure_entry_darker"]
+        text_color = window.config.colors["departure_entry_text"]
 
         # Create the departure entry frame and its content
         frame = tk.Frame(window.departuresframe, bg=background, height=height)

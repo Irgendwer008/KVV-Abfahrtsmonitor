@@ -42,11 +42,11 @@ class Config:
             Helper.is_valid_ZoneInfo(self.general[setting])
             
             setting = "SEV-lines use normal line icon colors"
-            Helper.is_true_false_caseinsensitive(setting)
+            Helper.is_true_false_caseinsensitive(self.general[setting])
             
             setting = "QR-Code-height"
-            Helper.is_float(setting)
-            if not Helper.is_in_range(setting, (0, 1)):
+            Helper.is_float(self.general[setting])
+            if not Helper.is_in_range(self.general[setting], (0, 1)):
                 raise ValueError
             
         except KeyError:

@@ -18,24 +18,20 @@ from KVV import KVV
 #TODO: handle http errors
 #TODO: popup window for error handling
 #TODO: extensive comments
+#TODO: make icon drawer use text box size for icon width adaptation
 
 # optional
 #TODO: Add custom file names
 #TODO: situation banner
-#TODO: QR-code to repo
 #TODO: no hardcoded string
-#TODO: make prefix and suffix optional in config.yaml
-#TODO: add color cusomization
-#TODO: custom enable/disable SEV-lines take normal lines color
 
 logger.info("starting KVV-Abfahrtsmonitore...")
 
 # Get config from config file and check it for integrity
-config = Config.read()
-general_config, windows_config, stations_config, credentials_config, colors_config = Config.check(config)
+config = Config()
 
 # Init KVV API handler
-kvv = KVV(url=credentials_config["url"], requestor_ref=credentials_config["requestor_ref"])
+kvv = KVV(url=config.credentials["url"], requestor_ref=config.credentials["requestor_ref"])
 
 # Init Icon handler
 icons = LineIcons()
@@ -47,8 +43,8 @@ default_font = tkfont.nametofont("TkDefaultFont")
 default_font.configure(family="liberation sans", size=60)
 
 # Init all windows and stations from config
-stations: dict[Station] = create_stations(stations_config)
-windows: list[Window] = Window.create_windows(windows_config, stations, icons, colors_config, general_config)
+stations: dict[Station] = create_stations(config.stations)
+windows: list[Window] = Window.create_windows(config, stations, icons)
 root.withdraw()
 
 # Gather a list of all needed stop points, so that if two windoes use the same station the station's stop points don't have to get requested twice from the API
@@ -62,7 +58,7 @@ def update_departure_entries():
         response = kvv.get(stop_point.stop_point_ref, number_of_results=10)
         try:
             tree = ET.ElementTree(ET.fromstring(response))
-            all_departures.extend(get_departures_from_xml(stop_point.stop_point_ref, tree, stations, (colors_config["default_icon_background"], colors_config["default_icon_text"]), general_config["SEV-lines use normal line icon colors"]))
+            all_departures.extend(get_departures_from_xml(stop_point.stop_point_ref, tree, stations, (config.colors["default_icon_background"], config.colors["default_icon_text"]), config.general["SEV-lines use normal line icon colors"]))
         except Exception as e:
             logger.exception("error in creating departures from xml tree", stack_info=True)
     
