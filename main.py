@@ -24,6 +24,7 @@ from KVV import KVV
 #TODO: Add custom file names
 #TODO: situation banner
 #TODO: no hardcoded string
+#TODO: show originally timetable departure if different to estimated
 
 logger.info("starting KVV-Abfahrtsmonitore...")
 

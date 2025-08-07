@@ -67,11 +67,18 @@ class Config:
             setting = "SEV-lines use normal line icon colors"
             Helper.is_true_false_caseinsensitive(self.general[setting])
             
-            # check if QR code height exists and is a float between including 1 and 0
-            setting = "QR-Code-height"
-            Helper.is_float(self.general[setting])
-            if not Helper.is_in_range(self.general[setting], (0, 1)):
-                raise ValueError
+            # check if QR code content exists
+            setting = "QR-Code-content"
+            Helper.does_exist(self.general[setting])
+            
+            # if qr-code content is not empty: check if QR code height exists and is a float between including 1 and 0
+            if self.general["QR-Code-content"] not in [None, "None", "none"]:
+                setting = "QR-Code-height"
+                Helper.is_float(self.general[setting])
+                if not Helper.is_in_range(self.general[setting], (0, 1)):
+                    raise ValueError
+            else:
+                self.general["QR-Code-content"] = None
             
         except KeyError:
             logger.critical(f'KeyError while reading general setting "{setting}", have you typed it correctly? Quitting program.', exc_info=True)
