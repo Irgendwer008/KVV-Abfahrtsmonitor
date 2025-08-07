@@ -40,6 +40,7 @@ icons = LineIcons()
 # Init GUI windows
 root = tk.Tk()
 
+# Create the default font for use in all windows
 default_font = tkfont.nametofont("TkDefaultFont")
 default_font.configure(family="liberation sans", size=60)
 
@@ -52,12 +53,18 @@ root.withdraw()
 all_stop_points: list[StopPoint] = get_all_used_stoppoints(windows)
 
 def update_departure_entries():
+    """Update all departures on all windows
+    """    
     # Get the current list of departures from all occuring stations
     all_departures: list[Departure] = []
     #tree = ET.parse("response.xml")
+    
+    # cycle through all stop points to get their latest departures
     for stop_point in all_stop_points:
+        # Get the departures for this stoppoint from the KVV API
         response = kvv.get(stop_point.stop_point_ref, number_of_results=10)
         try:
+            # Read the API response and add all parsed departures to the list
             tree = ET.ElementTree(ET.fromstring(response))
             all_departures.extend(get_departures_from_xml(stop_point.stop_point_ref, tree, stations, (config.colors["default_icon_background"], config.colors["default_icon_text"]), config.general["SEV-lines use normal line icon colors"]))
         except Exception as e:
@@ -68,16 +75,23 @@ def update_departure_entries():
         window_departures = get_departures_for_window(window, all_departures)
         window.refresh(window_departures)
     
+    # Do it all again after a defined interval
+    # TODO: not hardcoded
     root.after(30000, update_departure_entries)
 
 def update_data():
-    # Donwload latest line colors for use in line icons
+    """Download latest line colors for use in line icons
+    """
     if download_line_color_list("line-colors.csv"):
         icons.icon_cache.clear() # (Only) clear old icons if new line colors could be downloaded.
     
+    # Do it all again after a defined interval
+    # TODO: not hardcoded
     root.after(300000, update_data) # Update daily: 86400000ms
-    
+
+# start refresh cycles
 update_data()
 update_departure_entries()
 
+# Run Tk mainloop
 root.mainloop()
