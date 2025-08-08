@@ -78,8 +78,8 @@ class LineIcons:
             return self._create_rounded_label(width, height, radius, text, background_color, icon_color, text_color, font)
         elif mode == "tram":
             return self._create_square_label(width, height, text, background_color, icon_color, text_color, font)
-        #elif mode == "bus":
-        #    return self._create_circle_label(parent, width/2, text, background_color, icon_color, text_color, font)
+        elif mode == "bus":
+            return self._create_banner_label(width, height, text, background_color, icon_color, text_color, font)
         else:
             return self._create_hexagon_label(width, height, text, background_color, icon_color, text_color, font)
 
@@ -164,6 +164,26 @@ class LineIcons:
             (height / 3, height),
             (0, height / 2)
         ]
+        draw.polygon(points, fill=icon_color)
+        
+        self._draw_text_centered(draw, width, height, text, font, text_color)
+        return img
+
+    def _create_banner_label(self, width, height, text, background_color, icon_color, text_color, font) -> Image:
+        width = max(int(width), int(height * 5 / 4))
+        img = self._create_base_image(width, height, background_color)
+        draw = ImageDraw.Draw(img)
+
+        # create a banner shape
+        points = [
+            (0, 0),
+            (width, 0),
+            (width - height / 5, height / 2),
+            (width, height),
+            (0, height),
+            (height / 5, height / 2)
+        ]
+        
         draw.polygon(points, fill=icon_color)
         self._draw_text_centered(draw, width, height, text, font, text_color)
         return img
