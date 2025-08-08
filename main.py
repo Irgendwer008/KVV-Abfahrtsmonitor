@@ -19,6 +19,8 @@ from KVV import KVV
 #TODO: popup window for error handling
 #TODO: extensive comments
 #TODO: make icon drawer use text box size for icon width adaptation
+#TODO: remove background from gui_line_icons
+#TODO: make icon fit to text length
 
 # optional
 #TODO: Add custom file names

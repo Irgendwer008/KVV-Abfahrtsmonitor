@@ -69,7 +69,7 @@ class Config:
             
             # check if QR code content exists
             setting = "QR-Code-content"
-            Helper.does_exist(self.general[setting])
+            Helper.does_exist(self.general, setting)
             
             # if qr-code content is not empty: check if QR code height exists and is a float between including 1 and 0
             if self.general["QR-Code-content"] not in [None, "None", "none"]:

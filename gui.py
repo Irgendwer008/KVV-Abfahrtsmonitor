@@ -164,8 +164,8 @@ class DepartureEntry:
         self.height = window.DepartureEntry_height
         self.padding = int(self.height / 8)
         self.font = window.DepartureEntry_font
-        background = self.window.config.colors["DepartureEntry_lighter"]
-        text_color = self.window.config.colors["DepartureEntry_text"]
+        background = self.window.config.colors["departure_entry_lighter"]
+        text_color = self.window.config.colors["departure_entry_text"]
         
         # Create tkVars
         self.destination_var = tk.StringVar()
@@ -200,9 +200,9 @@ class DepartureEntry:
         
         # Alternate Background of departure entries
         if index % 2:
-            background = self.window.config.colors["DepartureEntry_darker"]
+            background = self.window.config.colors["departure_entry_darker"]
         else:
-            background = self.window.config.colors["DepartureEntry_lighter"]
+            background = self.window.config.colors["departure_entry_lighter"]
             
         # Set new background to all the widgets
         self.frame.configure(background=background)
@@ -285,8 +285,8 @@ class DepartureEntry_Header(DepartureEntry):
         padding = int(height / 8)
         
         # Set background color
-        background = window.config.colors["DepartureEntry_darker"]
-        text_color = window.config.colors["DepartureEntry_text"]
+        background = window.config.colors["departure_entry_darker"]
+        text_color = window.config.colors["departure_entry_text"]
 
         # Create the departure entry frame and its content
         frame = tk.Frame(window.departuresframe, bg=background, height=height)
