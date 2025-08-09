@@ -1,4 +1,4 @@
-This is quick and easy, but by design very flexible Solution for displaying departure data from the [KVV's TRIAS-API](https://www.kvv.de/fahrplan/fahrplaene/open-data.html) on or especially several displays. It was developed for display at the students culture club ["Z10"](https://z10.info) in Karlsruhe.
+This is quick and easy, but by design very flexible Solution for displaying departure data from the [KVV's TRIAS-API](https://www.kvv.de/fahrplan/fahrplaene/open-data.html) on one or especially several displays. It was developed for display at the students culture club ["Z10"](https://z10.info) in Karlsruhe.
 
 Any ideas or help by you is warmely welcome! :)
 
