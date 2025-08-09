@@ -16,10 +16,10 @@ class LineIcons:
                  height: int,
                  radius: int,
                  text: str,
-                 background_color: str,
                  icon_color: str,
                  text_color: str,
-                 font) -> ImageTk.PhotoImage:
+                 font,
+                 padding_height_ratio: float = None) -> ImageTk.PhotoImage:
         """Get the line icon either from cache or by creating a new one
 
         Args:
@@ -28,21 +28,26 @@ class LineIcons:
             height (int): height of icon
             radius (int): cornerradius of icon, if applicable
             text (str): Text to write in the icon (line number)
-            background_color (str): Background color
             icon_color (str): Icon color
             text_color (str): Text color
             font (_Ink): Font to use for line number text
+            padding_height_ratio (float): padding is height times this ratio
 
         Returns:
             ImageTk.PhotoImage: returns the requested icon
-        """        
+        """ 
+        
+        if padding_height_ratio is None:
+            padding_height_ratio = 1 / 7
+        
+        padding = int(height * padding_height_ratio)       
 
         # return icon from cache if icon for this line already exists
         if text in self.icon_cache:
             return self.icon_cache[text]
 
         # else, create a new icon, save it to the cache and return it
-        img = self._create_icon(mode, width, height, radius, text, background_color, icon_color, text_color, font)
+        img = self._create_icon(mode, width, height, padding, radius, text, icon_color, text_color, font)
         photo = ImageTk.PhotoImage(img)
         self.icon_cache[text] = photo
         return photo
@@ -51,9 +56,9 @@ class LineIcons:
                      mode,
                      width,
                      height,
+                     padding,
                      radius,
                      text,
-                     background_color,
                      icon_color,
                      text_color,
                      font) -> Image:
@@ -63,9 +68,9 @@ class LineIcons:
             mode (Literal["all", "unknown", "air", "bus", "trolleyBus", "tram", "coach", "rail", "intercityRail", "urbanRail", "metro", "water", "cablee-way", "funicular", "taxi"]): Mode of transport of the line
             width (int): width of the icon
             height (int): height of the icon
+            padding (int): padding between text and icon border
             radius (int): cornerraidus of the icon (if applicable)
             text (str): Line number string to be displayed inside the image
-            background_color (str): background color hex code
             icon_color (str): icon color hex code
             text_color (str): text color hex code
             font (_Ink): font of the line number
@@ -73,8 +78,6 @@ class LineIcons:
         Returns:
             Image: Image of the created icon
         """
-        
-        padding = int(height / 7)
 
         if mode == "rail":
             return self._create_rounded_label(width, height, padding, radius, text, icon_color, text_color, font)
@@ -91,7 +94,6 @@ class LineIcons:
         Args:
             width (int): width of the icon
             height (int): height of the icon
-            background_color (hex color code): Background color
 
         Returns:
             Image: Image of the base icon
