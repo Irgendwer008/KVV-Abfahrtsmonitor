@@ -72,19 +72,21 @@ class LineIcons:
 
         Returns:
             Image: Image of the created icon
-        """        
+        """
+        
+        padding = int(height / 7)
 
         if mode == "rail":
-            return self._create_rounded_label(width, height, radius, text, background_color, icon_color, text_color, font)
+            return self._create_rounded_label(width, height, padding, radius, text, icon_color, text_color, font)
         elif mode == "tram":
-            return self._create_square_label(width, height, text, background_color, icon_color, text_color, font)
+            return self._create_square_label(width, height, padding, text, icon_color, text_color, font)
         elif mode == "bus":
-            return self._create_banner_label(width, height, text, background_color, icon_color, text_color, font)
+            return self._create_banner_label(width, height, padding, text, icon_color, text_color, font)
         else:
-            return self._create_hexagon_label(width, height, text, background_color, icon_color, text_color, font)
+            return self._create_hexagon_label(width, height, padding, text, icon_color, text_color, font)
 
-    def _create_base_image(self, width, height, background_color) -> Image:
-        """Creates the base image for an icon
+    def _create_base_image_draw(self, width, height):
+        """Creates the base image draw for an icon
 
         Args:
             width (int): width of the icon
@@ -93,10 +95,24 @@ class LineIcons:
 
         Returns:
             Image: Image of the base icon
+            ImageDraw: ImageDraw of the base icon
         """        
-        return Image.new("RGBA", (width, height), (0, 0, 0, 0))
+        img = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+        
+        return img, ImageDraw.Draw(img)
 
-    def _draw_text_centered(self, draw: ImageDraw, width: int, height: int, text: str, font, fill):
+    def _draw_text_centered(self, draw: ImageDraw, text: str, font, fill, width: int = 0, height: int = 0) -> tuple[str, str]:
+        """Draws the given text to the image and returns the text box height and width
+
+        Args:
+            draw (ImageDraw): Draw object
+            text (str): The text to draw
+            font: The Font to use
+            fill: THe text color to use
+
+        Returns:
+            tuple[str, str]: Tuple of (width, height) of the drawn textbox
+        """        
         try:
             pil_font = ImageFont.truetype("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf", font[1])
         except:
@@ -116,7 +132,18 @@ class LineIcons:
         y = (height - total_height) / 2
 
         draw.text((x, y), text, font=pil_font, fill=fill)
+        
+        return text_width, total_height
 
+    def _get_width_and_height(self, width, height, padding, text, font, text_color):
+        # draw text box
+        text_width, text_height = self._draw_text_centered(ImageDraw.Draw(Image.new("RGBA", (width, height), (0, 0, 0, 0))), text, font, text_color)
+        width = text_width + 2 * padding
+        height = text_height + padding
+        
+        width = max(width, int(height * 5/6))
+        
+        return int(width), int(height)
 
     ###############################
     # Icon shape creation methods #
@@ -124,9 +151,9 @@ class LineIcons:
     
     # The following methods create the different shapes of icons
 
-    def _create_rounded_label(self, width, height, radius, text, background_color, icon_color, text_color, font) -> Image:
-        img = self._create_base_image(width, height, background_color)
-        draw = ImageDraw.Draw(img)
+    def _create_rounded_label(self, width, height, padding, radius, text, icon_color, text_color, font) -> Image:
+        width, height = self._get_width_and_height(width, height, padding, text, font, text_color)
+        img, draw = self._create_base_image_draw(width, height)
 
         # create two overlapping center rectangles
         draw.rectangle([radius, 0, width - radius, height], fill=icon_color)
@@ -137,23 +164,23 @@ class LineIcons:
         draw.pieslice([0, height - 2 * radius, 2 * radius, height], 90, 180, fill=icon_color)
         draw.pieslice([width - 2 * radius, height - 2 * radius, width, height], 0, 90, fill=icon_color)
 
-        self._draw_text_centered(draw, width, height, text, font, text_color)
+        self._draw_text_centered(draw, text, font, text_color, width, height)
         return img
 
-    def _create_square_label(self, width, height, text, background_color, icon_color, text_color, font) -> Image:
-        img = self._create_base_image(width, height, background_color)
-        draw = ImageDraw.Draw(img)
+    def _create_square_label(self, width, height, padding, text, icon_color, text_color, font) -> Image:
+        width, height = self._get_width_and_height(width, height, padding, text, font, text_color)
+        img, draw = self._create_base_image_draw(width, height)
         
         # create one single rectangle
         draw.rectangle([0, 0, width, height], fill=icon_color)
         
-        self._draw_text_centered(draw, width, height, text, font, text_color)
+        self._draw_text_centered(draw, text, font, text_color, width, height)
         return img
 
-    def _create_hexagon_label(self, width, height, text, background_color, icon_color, text_color, font) -> Image:
+    def _create_hexagon_label(self, width, height, padding, text, icon_color, text_color, font) -> Image:
+        width, height = self._get_width_and_height(width, height, padding, text, font, text_color)
         width = max(int(width), int(height * 5 / 4))
-        img = self._create_base_image(width, height, background_color)
-        draw = ImageDraw.Draw(img)
+        img, draw = self._create_base_image_draw(width, height)
 
         # create a hexagon shape
         points = [
@@ -166,24 +193,24 @@ class LineIcons:
         ]
         draw.polygon(points, fill=icon_color)
         
-        self._draw_text_centered(draw, width, height, text, font, text_color)
+        self._draw_text_centered(draw, text, font, text_color, width, height)
         return img
 
-    def _create_banner_label(self, width, height, text, background_color, icon_color, text_color, font) -> Image:
+    def _create_banner_label(self, width, height, padding, text, icon_color, text_color, font) -> Image:
+        width, height = self._get_width_and_height(width, height, padding, text, font, text_color)
         width = max(int(width), int(height * 5 / 4))
-        img = self._create_base_image(width, height, background_color)
-        draw = ImageDraw.Draw(img)
+        img, draw = self._create_base_image_draw(width + 2*padding, height)
 
         # create a banner shape
         points = [
             (0, 0),
-            (width, 0),
-            (width - height / 5, height / 2),
-            (width, height),
+            (padding + width + padding, 0),
+            (padding + width, height / 2),
+            (padding + width + padding, height),
             (0, height),
-            (height / 5, height / 2)
+            (padding, height / 2)
         ]
         
         draw.polygon(points, fill=icon_color)
-        self._draw_text_centered(draw, width, height, text, font, text_color)
+        self._draw_text_centered(draw, text, font, text_color, width + 2*padding, height)
         return img
