@@ -239,7 +239,7 @@ class DepartureEntry:
         icon_height = int(icon_scale * (self.height - 2* self.padding))
         
         # Create the icon (-> gui_line_icons.py)
-        self.line_icon_label.configure(image=icon_handler.get_icon(departure.mode, icon_width, icon_height, int((icon_height) / 4), text, background, departure.background_color, departure.text_color, self.font), background=background)
+        self.line_icon_label.configure(image=icon_handler.get_icon(departure.mode, icon_width, icon_height, int((icon_height) / 4), text, departure.background_color, departure.text_color, self.font), background=background)
 
         # Platform formatting stuff
         prefix = departure.stop_point.prefix if departure.stop_point.prefix is not None else ""
