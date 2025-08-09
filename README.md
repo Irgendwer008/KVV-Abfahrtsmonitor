@@ -11,7 +11,7 @@ Any ideas or help by you is warmely welcome! :)
 - different icon shapes for different transit types, currently designed to look like official KVV icons
 - simple configuration via YAML file
 - Rather optimized, e.g. by caching icon images, to be as fast as possible: Intended to run on Raspberry Pi 4 with dual displays
-- QR-Code with custom content (e.g. links), size and [colors](#colors)
+- QR-Code with custom content (e.g. links), size and colors
 
 # Requirements
 - Python 3 (not shure which exactly works, currently on 3.12.11)
@@ -30,7 +30,7 @@ Any ideas or help by you is warmely welcome! :)
     ```
 - Edit the configuration file (see [Configuration](#configuration)) to your needs
 - Install python packages: `pip install -r requirements.txt`
-- Run: `python`
+- Run: `python main.py`
 
 # Configuration
 The application uses a YAML configuration file to define window layouts, stations, and credentials. A complete template configuration file can be found in the [config_template.yaml](https://github.com/Irgendwer008/OpenDepartureDisplay/blob/main/config_template.yaml).

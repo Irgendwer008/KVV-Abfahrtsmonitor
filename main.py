@@ -19,6 +19,7 @@ from KVV import KVV
 #TODO: popup window for error handling
 
 # optional
+#TODO: make config section for matching travel mode to icon form
 #TODO: Add custom file names
 #TODO: situation banner
 #TODO: no hardcoded string
