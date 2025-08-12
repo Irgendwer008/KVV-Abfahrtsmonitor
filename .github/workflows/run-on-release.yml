@@ -19,7 +19,7 @@ jobs:
 
       - name: Echo IP address
         run: |
-          echo -n hostname -I
+          hostname -I
 
       - name: Copy environment config file
         shell: bash
