@@ -13,6 +13,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Echo IP address
+        run: |
+          echo hostname -I
+
       - name: Copy environment config file
         shell: bash
         env:
