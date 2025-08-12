@@ -55,7 +55,7 @@ class Window:
         window = tk.Toplevel()
         self.window = window
         window.geometry(f"{window_config['width']}x{window_config['height']}+{window_config['position_x']}+{window_config['position_y']}")
-        #window.attributes("-fullscreen", True)
+        window.attributes("-fullscreen", True)
         # remove window header bar to make it appear fullscreen
         window.wm_attributes('-type', 'splash')
         # add function to quit at any time by pressing Ctrl + q
