@@ -18,7 +18,7 @@ jobs:
         env:
           CONFIG_FILE: ${{ secrets.Z10_CONFIG }}
         run: |
-          echo -n "$CONFIG_FILE" > config.yml
+          echo -n "$CONFIG_FILE" > ./config.yml
 
       - name: Set up Python virtual environment
         run: |
