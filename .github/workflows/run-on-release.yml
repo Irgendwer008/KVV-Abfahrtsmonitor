@@ -13,6 +13,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Copy environment config file
+        shell: bash
+        env:
+          CONFIG_FILE: ${{ secrets.Z10_CONFIG }}
+        run: |
+          echo -n "$CONFIG_FILE" > config.yml
+
       - name: Set up Python virtual environment
         run: |
           python3 -m venv venv
