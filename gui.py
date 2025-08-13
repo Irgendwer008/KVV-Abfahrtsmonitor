@@ -7,6 +7,7 @@ from config import Config
 from data_classes import Station, Departure
 from helper_functions import get_time_from_now
 from gui_line_icons import LineIcons
+from log import logger
 
 class Window:
     """A class for every Window to be displayed
@@ -51,6 +52,10 @@ class Window:
         self.config = config
         self.number_of_departure_entries=number_of_departure_entries
         
+        def close(_ = None):
+            logger.critical("Ctrl+q or Ctrl+c pressed by user, exiting program now")
+            quit()
+        
         # Create a new tkinter window
         window = tk.Toplevel()
         self.window = window
@@ -58,8 +63,9 @@ class Window:
         #window.attributes("-fullscreen", True)
         # remove window header bar to make it appear fullscreen
         window.wm_attributes('-type', 'splash')
-        # add function to quit at any time by pressing Ctrl + q
-        window.bind("<Control-q>", quit)
+        # add function to quit at any time by pressing Ctrl + q or Ctrl + c
+        window.bind("<Control-q>", close)
+        window.bind("<Control-c>", close)
         
         # set this windows height and width
         self.height = window_config["height"]

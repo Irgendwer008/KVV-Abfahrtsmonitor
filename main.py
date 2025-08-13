@@ -18,15 +18,17 @@ from KVV import KVV
 #TODO: handle empty departures
 #TODO: handle http errors
 #TODO: popup window for error handling
+#TODO: change log file name to ODD.log or similar with next major version
 
 # optional
+#TODO: add config for custom log file name
 #TODO: make config section for matching travel mode to icon form
 #TODO: Add custom file names
 #TODO: situation banner
 #TODO: no hardcoded string
 #TODO: show originally timetable departure if different to estimated
 
-logger.info("starting KVV-Abfahrtsmonitore...")
+logger.info("Starting OpenDepartureDisplay")
 
 # Get config from config file and check it for integrity
 config = Config()
