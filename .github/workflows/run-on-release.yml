@@ -14,12 +14,12 @@ jobs:
     runs-on: self-hosted
 
     steps:
+      - name: Stop the GUI app service
+        run: |
+          systemctl --user stop OpenDepartureDisplay.service
+      
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Echo IP address
-        run: |
-          hostname -I
 
       - name: Copy environment config file
         shell: bash
@@ -28,18 +28,18 @@ jobs:
         run: |
           echo -n "$CONFIG_FILE" > ./config.yml
 
-      - name: Set up Python virtual environment
+      - name: Set up Python virtual environment (if needed)
         run: |
           python3 -m venv venv
 
-      - name: Upgrade PIP
+      - name: Upgrade pip
         run: |
           ./venv/bin/python -m pip install --upgrade pip
 
-      - name: Update / Install requirements
+      - name: Install/update dependencies
         run: |
           ./venv/bin/pip install --upgrade -r requirements.txt
 
-      - name: Run Python script
+      - name: Restart the GUI app service
         run: |
-          ./venv/bin/python main.py
+          systemctl --user start OpenDepartureDisplay.service
