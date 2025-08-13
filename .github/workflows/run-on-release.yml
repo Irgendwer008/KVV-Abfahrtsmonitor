@@ -11,7 +11,7 @@ on:
 
 jobs:
   run-python:
-    runs-on: [self-hosted, Z10-Treppenhaus]
+    runs-on: self-hosted
 
     steps:
       - name: Checkout repository
