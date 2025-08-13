@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from log import logger
 
 import tkinter as tk
