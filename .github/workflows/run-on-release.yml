@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Stop the GUI app service
         run: |
-          systemctl --user stop OpenDepartureDisplay.service
+          sudo -u pi XDG_RUNTIME_DIR=/run/user/$(id -u pi) systemctl --user stop OpenDepartureDisplay.service
       
       - name: Checkout repository
         uses: actions/checkout@v4
