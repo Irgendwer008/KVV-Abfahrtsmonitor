@@ -43,3 +43,18 @@ jobs:
       - name: Restart the GUI app service
         run: |
           systemctl --user start OpenDepartureDisplay.service
+
+      - name: Check on the GUI app service after 10 sec
+        run: |
+          sleep 10
+          systemctl --user status OpenDepartureDisplay.service
+
+
+      - name: Check on the GUI app service after 30 more sec
+        run: |
+          sleep 30
+          systemctl --user status OpenDepartureDisplay.service
+      
+      - name: Print log for debugging purposes
+        run: |
+          cat ./KVV-Abfahrtsmonitor.log
