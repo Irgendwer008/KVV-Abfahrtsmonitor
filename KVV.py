@@ -65,7 +65,6 @@ class KVV:
             stop_point_ref,
             number_of_results: int,
             time_delta: timedelta = timedelta(minutes=3),
-            request_timestamp: datetime = datetime.now()
             ) -> requests.Response:
         """Exeecute an API request to the KVV Trias API
 
@@ -77,7 +76,9 @@ class KVV:
 
         Returns:
             requests.Response: _description_
-        """        
+        """
+        
+        request_timestamp = datetime.now()
 
         # Get formatted xml string
         xml_body = self._get_formatted_xml_string(request_timestamp, stop_point_ref, time_delta, number_of_results)
