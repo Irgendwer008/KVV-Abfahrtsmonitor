@@ -59,6 +59,7 @@ class Window:
         # Create a new tkinter window
         window = tk.Toplevel()
         self.window = window
+        window.overrideredirect(True) 
         window.geometry(f"{window_config['width']}x{window_config['height']}+{window_config['position_x']}+{window_config['position_y']}")
         #window.attributes("-fullscreen", True)
         # remove window header bar to make it appear fullscreen
