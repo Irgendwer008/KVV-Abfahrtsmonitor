@@ -20,7 +20,7 @@ jobs:
       
       - name: Stop the GUI app service
         run: |
-          sudo -u pi XDG_RUNTIME_DIR=/run/user/$(id -u pi) systemctl --user stop OpenDepartureDisplay.service
+          sudo -u ${{ vars.USER }} XDG_RUNTIME_DIR=/run/user/$(id -u ${{ vars.USER }}) systemctl --user stop OpenDepartureDisplay.service
       
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -46,19 +46,20 @@ jobs:
 
       - name: Restart the GUI app service
         run: |
-          sudo -u pi XDG_RUNTIME_DIR=/run/user/$(id -u pi) systemctl --user start OpenDepartureDisplay.service
+          sudo -u ${{ vars.USER }} XDG_RUNTIME_DIR=/run/user/$(id -u ${{ vars.USER }}) systemctl --user start OpenDepartureDisplay.service
 
       - name: Check on the GUI app service after 10 sec
         run: |
           sleep 10
-          sudo -u pi XDG_RUNTIME_DIR=/run/user/$(id -u pi) systemctl --user status OpenDepartureDisplay.service
+          sudo -u ${{ vars.USER }} XDG_RUNTIME_DIR=/run/user/$(id -u ${{ vars.USER }}) systemctl --user status OpenDepartureDisplay.service
 
 
       - name: Check on the GUI app service after 30 more sec
         run: |
           sleep 30
-          sudo -u pi XDG_RUNTIME_DIR=/run/user/$(id -u pi) systemctl --user status OpenDepartureDisplay.service
+          sudo -u ${{ vars.USER }} XDG_RUNTIME_DIR=/run/user/$(id -u ${{ vars.USER }}) systemctl --user status OpenDepartureDisplay.service
       
       - name: Print log for debugging purposes
         run: |
-          cat ./KVV-Abfahrtsmonitor.log
+          cat ./${{ vars.LOG_FILE_NAME }}
+
